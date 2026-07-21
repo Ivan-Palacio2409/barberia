@@ -1,0 +1,392 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   TOKENS CSS — FORMA Peluquería
+   Paleta: Ink (grafito) · Stone (piedra cálida) · Gold (latón)
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Fondos */
+    --background:       36 22% 97%;
+    --foreground:       20 12% 12%;
+
+    --card:             0 0% 100%;
+    --card-foreground:  20 12% 12%;
+
+    --popover:          0 0% 100%;
+    --popover-foreground: 20 12% 12%;
+
+    --primary:          20 10% 16%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:        36 22% 94%;
+    --secondary-foreground: 20 12% 20%;
+
+    --accent:           38 42% 47%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted:            30 12% 91%;
+    --muted-foreground: 20 8% 45%;
+
+    --destructive:      0 75% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:           30 15% 86%;
+    --input:            30 15% 86%;
+    --ring:              20 10% 16%;
+
+    --radius: 0.5rem;
+
+    color-scheme: light;
+
+    --color-ink:        #292421;
+    --color-cream:      #f2ece3;
+    --color-gold:       #ab8140;
+    --color-text:       #221e1a;
+    --color-text-muted: #746a5f;
+
+    /* ════════════════════════════════════════════════════════
+       PALETA OSCURA DEL SITIO PÚBLICO — "Aureum & Onyx"
+       Valores EXACTOS del sistema de diseño (DESIGN.md): fondo
+       onyx profundo, oro envejecido como acento y off-white cálido
+       para texto. Solo se usa dentro de `(public)/layout.tsx`.
+       ════════════════════════════════════════════════════════ */
+    --pub-bg:           #121414;  /* surface / background */
+    --pub-bg-soft:      #1a1c1c;  /* surface-container-low */
+    --pub-surface:      #1e2020;  /* surface-container */
+    --pub-surface-2:    #282a2b;  /* surface-container-high */
+    --pub-surface-3:    #333535;  /* surface-container-highest */
+    --pub-surface-lowest: #0c0f0f; /* surface-container-lowest */
+    --pub-border:       rgba(245, 245, 245, 0.05);
+    --pub-border-soft:  rgba(245, 245, 245, 0.03);
+    --pub-border-strong: rgba(245, 245, 245, 0.12);
+    --pub-text:         #e2e2e2;  /* on-surface */
+    --pub-text-muted:   #d1c5b4;  /* on-surface-variant */
+    --pub-text-dim:     #9a8f80;  /* outline */
+    --pub-gold:         #c5a059;  /* primary-container / aged gold */
+    --pub-gold-soft:    rgba(197, 160, 89, 0.12);
+    --pub-gold-strong:  #e9c176;  /* primary — oro brillante para énfasis */
+    --pub-on-gold:      #412d00;  /* on-primary — texto sobre botones dorados */
+    --pub-red:          #9a4a3e;
+    --pub-red-soft:     rgba(154, 74, 62, 0.14);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TEMA DEL PANEL ADMIN — misma paleta "Aureum & Onyx" del sitio
+     público (onyx profundo + oro envejecido), aplicada solo dentro
+     de `/admin/*` vía esta clase en el layout. Login, registro y
+     el panel del cliente conservan el tema claro original.
+     ════════════════════════════════════════════════════════════ */
+  .admin-theme {
+    color-scheme: dark;
+
+    --background:       180 4% 7%;
+    --foreground:       0 0% 89%;
+
+    --card:             180 3% 12%;
+    --card-foreground:  0 0% 89%;
+
+    --popover:          180 3% 12%;
+    --popover-foreground: 0 0% 89%;
+
+    --primary:          39 48% 56%;
+    --primary-foreground: 41 100% 13%;
+
+    --secondary:        200 4% 16%;
+    --secondary-foreground: 0 0% 89%;
+
+    --accent:           39 72% 69%;
+    --accent-foreground: 41 100% 13%;
+
+    --muted:            180 4% 11%;
+    --muted-foreground: 35 11% 60%;
+
+    --destructive:      0 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:           180 4% 20%;
+    --input:            180 4% 20%;
+    --ring:              39 48% 56%;
+
+    --color-gold:       #c5a059;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TEMA OSCURO DEL PERFIL DE CLIENTE — a pedido, solo la página
+     /cliente/perfil pasa a fondo negro. No toca font-family ni
+     font-display: la tipografía es la misma de siempre, solo
+     cambian las variables de color (mismo mecanismo que
+     .admin-theme arriba). El resto de /cliente sigue con el tema
+     claro original.
+     ════════════════════════════════════════════════════════════ */
+  .cliente-perfil-theme {
+    color-scheme: dark;
+
+    --background:       0 0% 0%;
+    --foreground:       0 0% 92%;
+
+    --card:             0 0% 7%;
+    --card-foreground:  0 0% 92%;
+
+    --popover:          0 0% 7%;
+    --popover-foreground: 0 0% 92%;
+
+    --primary:          39 48% 56%;
+    --primary-foreground: 41 100% 13%;
+
+    --secondary:        0 0% 11%;
+    --secondary-foreground: 0 0% 92%;
+
+    --accent:           39 72% 69%;
+    --accent-foreground: 41 100% 13%;
+
+    --muted:            0 0% 10%;
+    --muted-foreground: 0 0% 62%;
+
+    --destructive:      0 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:           0 0% 18%;
+    --input:            0 0% 18%;
+    --ring:              39 48% 56%;
+  }
+
+  * { @apply border-border; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4 { @apply font-display; }
+  h1 { @apply text-3xl font-bold tracking-tight; }
+  h2 { @apply text-2xl font-semibold tracking-tight; }
+  h3 { @apply text-xl font-semibold; }
+  h4 { @apply text-lg font-medium; }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-gradient-ink {
+    background: linear-gradient(135deg, #292421 0%, #ab8140 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-ink-gradient {
+    background: linear-gradient(135deg, #fdf5f5 0%, #f2ece3 50%, #fdf8ee 100%);
+  }
+
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.08) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SITIO PÚBLICO — tema oscuro, versión contenida
+   ════════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* Grano sutil — mucho más discreto que antes, solo evita el
+     "negro plano" sin llamar la atención sobre sí mismo. */
+  .pub-grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .pub-grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.2;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+  }
+
+  /* Halos radiales — un solo tono, muy tenue; profundidad sin ruido visual */
+  .pub-glow-gold {
+    background: radial-gradient(circle, rgba(201,160,99,0.10) 0%, transparent 70%);
+  }
+  .pub-glow-red {
+    background: radial-gradient(circle, rgba(154,74,62,0.08) 0%, transparent 70%);
+  }
+
+  /* Hairline de acento — reemplaza la franja "poste de barbería";
+     un detalle mínimo en vez de un bloque de color llamativo. */
+  .pub-barberpole {
+    background: linear-gradient(90deg, transparent, var(--pub-gold) 50%, transparent);
+    opacity: 0.45;
+  }
+
+  .pub-card {
+    background: linear-gradient(135deg, var(--pub-surface) 0%, var(--pub-bg-soft) 100%);
+    border: 1px solid var(--pub-border);
+  }
+
+  .pub-card-hover {
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pub-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: var(--pub-border-strong);
+    background: var(--pub-surface-2);
+  }
+
+  /* Tarjeta de cristal esmerilado — usada en selección de servicios,
+     idéntica a la referencia Stitch (glass-card). */
+  .pub-glass {
+    background: rgba(30, 32, 32, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(245, 245, 245, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .pub-glass:hover {
+    background: rgba(40, 42, 43, 0.8);
+    border-color: rgba(197, 160, 89, 0.3);
+    transform: translateY(-4px);
+  }
+
+  /* Resplandor dorado sutil detrás de CTAs y tarjetas destacadas */
+  .pub-gold-glow {
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.15);
+  }
+}
+
+@layer utilities {
+  @keyframes pub-fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pub-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .pub-animate-marquee { animation: pub-marquee 28s linear infinite; }
+
+  .pub-fade-up {
+    animation: pub-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .pub-fade-up-1 { animation-delay: 0.05s; }
+  .pub-fade-up-2 { animation-delay: 0.12s; }
+  .pub-fade-up-3 { animation-delay: 0.19s; }
+  .pub-fade-up-4 { animation-delay: 0.26s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pub-animate-marquee,
+    .pub-fade-up { animation: none !important; }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERRAMIENTAS FLOTANTES — capa decorativa de barbería
+   (tijeras, máquina, peinilla, navaja, bigote) que flotan solas
+   y son arrastrables. Ver components/decor/FloatingBarberTools.
+   ════════════════════════════════════════════════════════════ */
+@layer utilities {
+  @keyframes pub-float-a {
+    0%   { transform: translate(0, 0) rotate(var(--rot)); }
+    25%  { transform: translate(4px, -10px) rotate(calc(var(--rot) + 6deg)); }
+    50%  { transform: translate(-3px, -4px) rotate(calc(var(--rot) - 4deg)); }
+    75%  { transform: translate(-6px, -14px) rotate(calc(var(--rot) + 3deg)); }
+    100% { transform: translate(0, 0) rotate(var(--rot)); }
+  }
+  @keyframes pub-float-b {
+    0%   { transform: translate(0, 0) rotate(var(--rot)); }
+    30%  { transform: translate(-8px, 8px) rotate(calc(var(--rot) - 8deg)); }
+    60%  { transform: translate(6px, 14px) rotate(calc(var(--rot) + 5deg)); }
+    100% { transform: translate(0, 0) rotate(var(--rot)); }
+  }
+
+  .pub-animate-float-a { animation: pub-float-a 9s ease-in-out infinite; }
+  .pub-animate-float-b { animation: pub-float-b 11s ease-in-out infinite; }
+
+  .pub-tool {
+    cursor: grab;
+    touch-action: none;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45));
+    transition: opacity 0.25s ease, filter 0.25s ease;
+    will-change: transform;
+  }
+  .pub-tool:hover { opacity: 0.95 !important; }
+  .pub-tool[data-dragging='true'] {
+    cursor: grabbing;
+    opacity: 0.95 !important;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pub-animate-float-a,
+    .pub-animate-float-b { animation: none !important; }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   TARJETA DE IMAGEN DEL HERO — marco dinámico con tilt 3D
+   ════════════════════════════════════════════════════════════ */
+@layer utilities {
+  .pub-tilt-card {
+    transform: perspective(900px)
+      rotateX(var(--tilt-x, 0deg))
+      rotateY(var(--tilt-y, 0deg))
+      scale(var(--tilt-scale, 1));
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pub-tilt-card[data-hovering='true'] {
+    transition: transform 0.08s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pub-tilt-card { transform: none !important; transition: none !important; }
+  }
+}

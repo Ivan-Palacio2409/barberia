@@ -1,0 +1,1 @@
+export { NotificacionesAdminShell } from './NotificacionesAdminShell'

@@ -1,0 +1,7 @@
+export { StarRating } from './StarRating'
+export { ResenaCard } from './ResenaCard'
+export { ResenaForm } from './ResenaForm'
+export { SugerenciaForm } from './SugerenciaForm'
+export { PromedioResenas } from './PromedioResenas'
+export { ResenasList } from './ResenasList'
+export { ResenasClientSection } from './ResenasClientSection'

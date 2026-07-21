@@ -1,0 +1,1 @@
+export { FormConfiguracionNegocio } from './FormConfiguracionNegocio'

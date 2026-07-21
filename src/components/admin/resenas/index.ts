@@ -1,0 +1,1 @@
+export { ResenasAdminShell } from './ResenasAdminShell'
