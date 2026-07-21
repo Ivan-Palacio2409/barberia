@@ -106,7 +106,7 @@ export function HeroSectionMobile() {
         style={{ background: 'linear-gradient(to top, var(--pub-bg) 0%, transparent 100%)' }}
       />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-16 w-full flex flex-col items-center">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 pt-28 w-full flex-1 flex flex-col items-center">
         {/* Nombre de marca + subtítulo */}
         <div ref={titleRef} className="flex flex-col items-center will-change-transform">
           <h1
@@ -183,22 +183,25 @@ export function HeroSectionMobile() {
               style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--pub-bg) 92%)' }}
             />
           </div>
-
-          {/* Botón de reserva */}
-          <div ref={buttonRef} className="relative mt-2 flex justify-center pb-12 will-change-transform">
-            <Link
-              href={ROUTES.reservar}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-semibold uppercase tracking-[0.12em] shadow-lg transition-opacity hover:opacity-90"
-              style={{
-                background: 'linear-gradient(135deg, var(--pub-gold) 0%, var(--pub-gold-strong) 100%)',
-                color: 'var(--pub-on-gold)',
-                boxShadow: '0 10px 30px rgba(233,193,118,0.35)',
-              }}
-            >
-              Reservar experiencia
-            </Link>
-          </div>
         </div>
+      </div>
+
+      {/* Botón de reserva — anclado al pie de la sección, sin espacio sobrante debajo */}
+      <div
+        ref={buttonRef}
+        className="relative z-10 mt-auto mb-8 flex justify-center w-full will-change-transform"
+      >
+        <Link
+          href={ROUTES.reservar}
+          className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-semibold uppercase tracking-[0.12em] shadow-lg transition-opacity hover:opacity-90"
+          style={{
+            background: 'linear-gradient(135deg, var(--pub-gold) 0%, var(--pub-gold-strong) 100%)',
+            color: 'var(--pub-on-gold)',
+            boxShadow: '0 10px 30px rgba(233,193,118,0.35)',
+          }}
+        >
+          Reservar experiencia
+        </Link>
       </div>
     </section>
   )

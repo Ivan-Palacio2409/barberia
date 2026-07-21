@@ -44,7 +44,7 @@ export function Navbar() {
       }}
     >
       <nav
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 md:h-20"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20 md:h-20"
         aria-label="Navegación principal"
       >
         {/* Logo */}

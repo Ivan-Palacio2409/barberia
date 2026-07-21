@@ -6,7 +6,7 @@ import { FloatingBarberTools } from '@/components/decor/FloatingBarberTools'
 const HORARIOS = [
   { dia: 'Lunes a viernes', hora: '8:00 am – 6:00 pm' },
   { dia: 'Sábados', hora: '8:00 am – 4:00 pm' },
-  { dia: 'Domingos', hora: 'Cerrado' },
+  { dia: 'Domingos', hora: '8:00 am – 12:00 m' },
 ]
 
 export function ContactSection() {
@@ -39,7 +39,7 @@ export function ContactSection() {
               <div>
                 <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--pub-text)' }}>Dirección</h3>
                 <p style={{ color: 'var(--pub-text-muted)' }} className="text-sm leading-relaxed">
-                  Calle 123 # 45-67, Bogotá D.C.<br />Colombia
+                  Barrio el volante
                 </p>
               </div>
             </div>
@@ -52,8 +52,8 @@ export function ContactSection() {
               </div>
               <div>
                 <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--pub-text)' }}>Teléfono</h3>
-                <a href="tel:+573001234567" className="text-sm hover:underline underline-offset-2" style={{ color: 'var(--pub-text-muted)' }}>
-                  +57 300 123 4567
+                <a href="tel:+573228409423" className="text-sm hover:underline underline-offset-2" style={{ color: 'var(--pub-text-muted)' }}>
+                  +57 322 840 9423
                 </a>
               </div>
             </div>
@@ -82,7 +82,7 @@ export function ContactSection() {
 
             <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <a
-                href="https://wa.me/573001234567"
+                href="https://wa.me/573228409423"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
@@ -110,11 +110,6 @@ export function ContactSection() {
                     <rect x="2" y="2" width="20" height="20" rx="5" />
                     <circle cx="12" cy="12" r="4" />
                     <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                  </svg>
-                )},
-                { label: 'TikTok', href: '#', icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
                   </svg>
                 )},
               ].map((s) => (

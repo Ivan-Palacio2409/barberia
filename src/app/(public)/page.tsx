@@ -41,12 +41,10 @@ async function SchemaSalon() {
     name: 'BARBERÍA',
     description:
       'Peluquería especializada en cortes, barba, color y tratamientos capilares.',
-    telephone: '+573001234567',
+    telephone: '+573228409423',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Calle 123 # 45-67',
-      addressLocality: 'Bogotá',
-      addressRegion: 'Cundinamarca',
+      streetAddress: 'Barrio el volante',
       addressCountry: 'CO',
     },
     openingHoursSpecification: [
@@ -61,6 +59,12 @@ async function SchemaSalon() {
         dayOfWeek: 'Saturday',
         opens: '08:00',
         closes: '16:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: 'Sunday',
+        opens: '08:00',
+        closes: '12:00',
       },
     ],
     url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://barberia-peluqueria.vercel.app',
