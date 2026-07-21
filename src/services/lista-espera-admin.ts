@@ -110,7 +110,7 @@ export async function cambiarEstadoListaEspera(
       const { error: errorNotif } = await supabase.from('notificaciones').insert({
         cliente_id: fila.cliente_id,
         tipo: 'aviso_lista_espera',
-        canal: 'email',
+        canal: 'whatsapp',
         fecha_programada: new Date().toISOString(),
         enviado: false,
       })

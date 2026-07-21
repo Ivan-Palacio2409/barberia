@@ -243,7 +243,7 @@ export async function crearCitaCompleta(
     cliente_id: input.clienteId,
     cita_id: citaId,
     tipo: 'confirmacion_cita',
-    canal: 'ambos',
+    canal: 'whatsapp',
     destinatario: 'cliente',
     fecha_programada: new Date().toISOString(),
     enviado: false,
@@ -260,7 +260,7 @@ export async function crearCitaCompleta(
     cliente_id: input.clienteId,
     cita_id: citaId,
     tipo: 'nueva_reserva_admin',
-    canal: 'ambos',
+    canal: 'whatsapp',
     destinatario: 'admin',
     fecha_programada: new Date().toISOString(),
     enviado: false,
@@ -278,7 +278,7 @@ export async function crearCitaCompleta(
     cliente_id: string
     cita_id: string
     tipo: 'recordatorio_24_horas' | 'recordatorio_mismo_dia' | 'recordatorio_1_hora'
-    canal: 'ambos'
+    canal: 'whatsapp'
     destinatario: 'cliente' | 'admin'
     fecha_programada: string
     enviado: boolean
@@ -290,7 +290,7 @@ export async function crearCitaCompleta(
       cliente_id: input.clienteId,
       cita_id: citaId,
       tipo: 'recordatorio_24_horas',
-      canal: 'ambos',
+      canal: 'whatsapp',
       destinatario: 'cliente',
       fecha_programada: new Date(momento24h).toISOString(),
       enviado: false,
@@ -306,7 +306,7 @@ export async function crearCitaCompleta(
       cliente_id: input.clienteId,
       cita_id: citaId,
       tipo: 'recordatorio_mismo_dia',
-      canal: 'ambos',
+      canal: 'whatsapp',
       destinatario: 'cliente',
       fecha_programada: new Date(momentoMismoDia).toISOString(),
       enviado: false,
@@ -320,7 +320,7 @@ export async function crearCitaCompleta(
       cliente_id: input.clienteId,
       cita_id: citaId,
       tipo: 'recordatorio_1_hora',
-      canal: 'ambos',
+      canal: 'whatsapp',
       destinatario: 'cliente',
       fecha_programada: new Date(momento1h).toISOString(),
       enviado: false,
@@ -329,7 +329,7 @@ export async function crearCitaCompleta(
       cliente_id: input.clienteId,
       cita_id: citaId,
       tipo: 'recordatorio_1_hora',
-      canal: 'ambos',
+      canal: 'whatsapp',
       destinatario: 'admin',
       fecha_programada: new Date(momento1h).toISOString(),
       enviado: false,

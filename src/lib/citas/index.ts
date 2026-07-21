@@ -76,7 +76,7 @@ export async function reagendarCita(
   if (updateError) throw new Error(updateError.message)
 
   // Insertar notificación de reagendamiento
-  await insertarNotificacion(citaId, clienteId, 'reagendamiento_cita', 'email')
+  await insertarNotificacion(citaId, clienteId, 'reagendamiento_cita', 'whatsapp')
 }
 
 // ── Cancelar cita ────────────────────────────────────────────
@@ -111,10 +111,9 @@ export async function cancelarCita(citaId: string, clienteId: string): Promise<v
   if (updateError) throw new Error(updateError.message)
 
   // Insertar notificación de cancelación — al cliente y al admin,
-  // por email + WhatsApp (canal 'ambos', igual que el resto del
-  // flujo H5). El dispatcher cae a email solo si WhatsApp falla.
-  await insertarNotificacion(citaId, clienteId, 'cancelacion_cita', 'ambos', 'cliente')
-  await insertarNotificacion(citaId, clienteId, 'cancelacion_cita', 'ambos', 'admin')
+  // solo por WhatsApp (sin email configurado en este proyecto).
+  await insertarNotificacion(citaId, clienteId, 'cancelacion_cita', 'whatsapp', 'cliente')
+  await insertarNotificacion(citaId, clienteId, 'cancelacion_cita', 'whatsapp', 'admin')
 }
 
 // ── Obtener horarios disponibles para una fecha y duración ───

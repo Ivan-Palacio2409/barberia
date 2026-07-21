@@ -3,10 +3,13 @@
 // Proveedor de WhatsApp real usando WhatsApp Cloud API (Meta).
 //
 // H5 (post fase 30): igual que EmailProvider, esto era un stub que
-// solo logueaba. Ahora hace el POST real al Graph API. Si faltan
-// las credenciales (WHATSAPP_API_TOKEN / WHATSAPP_PHONE_ID), no
-// revienta: loguea una advertencia y el dispatcher hace fallback a
-// email automáticamente (ver dispatcher.ts).
+// solo logueaba. Ahora hace el POST real al Graph API.
+//
+// Si faltan las credenciales (WHATSAPP_API_TOKEN/WHATSAPP_PHONE_ID)
+// o no hay teléfono de destino, send() LANZA un error en vez de
+// devolver en silencio — así dispatcher.ts sabe que de verdad no
+// se envió nada y no marca la notificación como `enviado = true`
+// por error (ver el mismo criterio en email-provider.ts).
 //
 // Cuando tengas las credenciales de WhatsApp Business:
 //   1. Agrega WHATSAPP_API_TOKEN y WHATSAPP_PHONE_ID en las variables de entorno.
@@ -14,10 +17,10 @@
 //      dentro de las 24h desde el último mensaje del cliente. Fuera de esa ventana
 //      (típicamente confirmacion_cita, recordatorios) hace falta un "message
 //      template" pre-aprobado por Meta en vez de un mensaje de texto simple. Este
-//      provider manda texto libre; si Meta rechaza el mensaje fuera de ventana, el
-//      dispatcher cae a email automáticamente. Cuando tengas los templates
-//      aprobados, cambiar el body de este fetch a type: "template" es el único
-//      ajuste necesario.
+//      provider manda texto libre; si Meta rechaza el mensaje fuera de ventana,
+//      dispatcher.ts deja la notificación como no enviada para que el cron la
+//      reintente. Cuando tengas los templates aprobados, cambiar el body de este
+//      fetch a type: "template" es el único ajuste necesario.
 // ============================================================
 
 import type { NotificationProvider, NotificationPayload } from './index'
@@ -39,7 +42,7 @@ export class WhatsAppProvider implements NotificationProvider {
 
     if (!telefono) {
       logger.warn('[WhatsAppProvider] Sin teléfono de destino, se omite envío.', payload.tipo, payload.cliente.id)
-      return
+      throw new Error('Sin teléfono de destino')
     }
 
     if (!token || !phoneId) {
@@ -47,7 +50,7 @@ export class WhatsAppProvider implements NotificationProvider {
         '[WhatsAppProvider] WHATSAPP_API_TOKEN/WHATSAPP_PHONE_ID no configurados — no se envía WhatsApp real.',
         payload.tipo,
       )
-      throw new Error('WhatsApp no configurado') // fuerza el fallback a email en el dispatcher
+      throw new Error('WhatsApp no configurado')
     }
 
     const { mensaje } = construirCopy(payload)

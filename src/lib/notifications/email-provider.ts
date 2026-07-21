@@ -4,10 +4,15 @@
 //
 // H5 (post fase 30): antes esto era un console.log — nadie lo
 // llamaba y no enviaba nada de verdad. Ahora hace el POST real a
-// Resend. Si RESEND_API_KEY no está configurada (ej. todavía no
-// tienes las credenciales del cliente final), no revienta: loguea
-// una advertencia y sigue — así el resto del flujo (crear la cita,
-// marcar la notificación) no se bloquea por falta de credenciales.
+// Resend.
+//
+// Si RESEND_API_KEY no está configurada o no hay email de destino,
+// send() LANZA un error (no devuelve en silencio). Esto es a
+// propósito: dispatcher.ts usa el resultado de send() para decidir
+// si la notificación se marca como `enviado = true` en la cola. Si
+// send() "tuviera éxito" en silencio sin mandar nada, el sistema
+// creería que la notificación llegó cuando en realidad no llegó a
+// nadie — eso es peor que un error visible en los logs.
 //
 // Cuando tengas la API key de Resend:
 //   1. Agrega RESEND_API_KEY en las variables de entorno (.env / Supabase Secrets / Vercel).
@@ -31,7 +36,7 @@ export class EmailProvider implements NotificationProvider {
 
     if (!email) {
       logger.warn('[EmailProvider] Sin email de destino, se omite envío.', payload.tipo, payload.cliente.id)
-      return
+      throw new Error('Sin email de destino')
     }
 
     if (!apiKey) {
@@ -42,7 +47,7 @@ export class EmailProvider implements NotificationProvider {
         '→',
         email,
       )
-      return
+      throw new Error('RESEND_API_KEY no configurada')
     }
 
     const from = process.env.RESEND_FROM_EMAIL || 'BARBERÍA <onboarding@resend.dev>'

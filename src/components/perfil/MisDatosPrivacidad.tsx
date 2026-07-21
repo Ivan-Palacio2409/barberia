@@ -92,7 +92,7 @@ export function MisDatosPrivacidad({ clienteId, userEmail }: Props) {
         cliente_id: clienteId,
         tipo: 'solicitud_eliminacion_cuenta',
         destinatario: 'admin',
-        canal: 'email',
+        canal: 'whatsapp',
         enviado: false,
         fecha_programada: new Date().toISOString(),
       })

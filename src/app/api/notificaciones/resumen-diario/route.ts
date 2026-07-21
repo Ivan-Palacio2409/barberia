@@ -122,7 +122,7 @@ async function enviarResumenDiario(req: NextRequest) {
     'resumen_diario_admin',
     clienteFicticio,
     undefined,
-    'ambos',
+    'whatsapp',
     { email: adminEmail, telefono: adminWhatsapp },
     resumenCitas,
     esHoy,

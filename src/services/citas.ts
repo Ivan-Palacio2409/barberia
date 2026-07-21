@@ -177,7 +177,7 @@ export async function marcarAsistencia(
       cliente_id: clienteId,
       cita_id: citaId,
       tipo: 'solicitud_resena',
-      canal: 'ambos',
+      canal: 'whatsapp',
       destinatario: 'cliente',
       fecha_programada: new Date().toISOString(),
       enviado: false,
@@ -225,8 +225,8 @@ export async function cancelarCita(id: string): Promise<Cita | null> {
 
 // ── Cancelar cita desde el admin (H5) ──────────────────────────
 // A diferencia de actualizarEstadoCita() (genérica, sin notificar),
-// esta función SÍ notifica al cliente por email + WhatsApp de que
-// su cita fue cancelada por el negocio. Se usa desde el panel de
+// esta función SÍ notifica al cliente por WhatsApp de que su cita
+// fue cancelada por el negocio. Se usa desde el panel de
 // administración en vez de cancelarCita()/actualizarEstadoCita().
 export async function cancelarCitaAdmin(id: string, clienteId: string): Promise<Cita | null> {
   const cita = await actualizarEstadoCita(id, 'cancelada')
@@ -237,7 +237,7 @@ export async function cancelarCitaAdmin(id: string, clienteId: string): Promise<
     cita_id: id,
     cliente_id: clienteId,
     tipo: 'cancelacion_cita',
-    canal: 'ambos',
+    canal: 'whatsapp',
     destinatario: 'cliente',
     enviado: false,
     fecha_programada: new Date().toISOString(),
