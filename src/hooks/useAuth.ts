@@ -26,7 +26,7 @@ interface UseAuthReturn {
     telefono?: string
   ) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
-  signInWithGoogle: () => Promise<{ error: string | null }>
+  signInWithGoogle: (next?: string) => Promise<{ error: string | null }>
   getClienteId: () => Promise<string | null>
   refreshProfile: () => Promise<void>
   resendConfirmation: (email: string) => Promise<{ error: string | null }>
@@ -128,17 +128,27 @@ export function useAuth(): UseAuthReturn {
   }, [supabase])
 
   // ── Google OAuth ─────────────────────────────────────────────
-  const signInWithGoogle = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: { access_type: 'offline', prompt: 'consent' },
-      },
-    })
-    if (error) return { error: error.message }
-    return { error: null }
-  }, [supabase])
+  // `next` es la ruta a la que se vuelve después del login (ej.
+  // '/reservar' cuando el login se dispara desde el paso 4 del
+  // flujo de reserva). /auth/callback ya sabe leer este parámetro
+  // y redirigir ahí una vez intercambiado el code por la sesión.
+  const signInWithGoogle = useCallback(
+    async (next?: string) => {
+      const callbackUrl = new URL('/auth/callback', window.location.origin)
+      if (next) callbackUrl.searchParams.set('next', next)
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: callbackUrl.toString(),
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+        },
+      })
+      if (error) return { error: error.message }
+      return { error: null }
+    },
+    [supabase]
+  )
 
   // ── Refrescar el profile del usuario actual sin recargar la pagina ──
   // Se usa despues de guardar cambios (ej. EditarPerfilForm) para que

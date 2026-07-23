@@ -10,8 +10,8 @@
 // ============================================================
 
 export const LEGAL_VERSIONS = {
-  PRIVACIDAD:  'privacidad-v1.0',
-  TERMINOS:    'terminos-v1.0',
+  PRIVACIDAD:  'privacidad-v1.1',
+  TERMINOS:    'terminos-v1.1',
   FOTOGRAFIAS: 'fotos-v1.0',
 } as const
 

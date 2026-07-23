@@ -8,7 +8,7 @@ import { useReserva } from '@/hooks/useReserva'
 import { useAuth } from '@/hooks/useAuth'
 import { datosClienteReservaSchema } from '@/lib/validations'
 import { registrarConsentimientoServidor } from '@/app/actions/consentimientos'
-import { buscarPorAuthUserId, crearClienteInvitado } from '@/services/clientes'
+import { buscarPorAuthUserId } from '@/services/clientes'
 import { ROUTES } from '@/constants'
 
 // ── Tipos ─────────────────────────────────────────────────────
@@ -131,32 +131,28 @@ export function ReservaStep4DatosCliente({ onNext, onBack }: Props) {
   }, [esAutenticado, profile, user, reset])
 
   async function handleLoginGoogle() {
-    await signInWithGoogle()
+    // 'next' hace que, tras autenticar con Google, Supabase devuelva
+    // a la persona exactamente a /reservar — donde useReserva (con
+    // persist en sessionStorage) restaura este mismo paso con todo
+    // lo que ya había avanzado (servicios, fecha, hora).
+    await signInWithGoogle(ROUTES.reservar)
   }
 
   async function onSubmit(values: FormValues) {
     // Honeypot — rechazar silenciosamente si viene relleno
     if (values.website) return
 
+    // Solo se llega aquí con sesión iniciada — sin cuenta no se
+    // muestra el formulario (ver render de más abajo).
+    if (!esAutenticado) return
+
     setGuardando(true)
     setErrorGeneral(null)
 
     try {
-      let clienteId: string | null = null
-
-      if (esAutenticado) {
-        // Escenario A — Autenticado: buscar cliente vinculado
-        const clienteExistente = await buscarPorAuthUserId(user.id)
-        clienteId = clienteExistente?.id ?? null
-      } else {
-        // Escenario B — Invitado: crear registro temporal
-        const nuevoCliente = await crearClienteInvitado({
-          nombre: values.nombre,
-          telefono: values.telefono,
-          email: values.email || undefined,
-        })
-        clienteId = nuevoCliente?.id ?? null
-      }
+      // Buscar el cliente vinculado a esta cuenta autenticada
+      const clienteExistente = await buscarPorAuthUserId(user.id)
+      const clienteId = clienteExistente?.id ?? null
 
       if (!clienteId) {
         setErrorGeneral('No pudimos identificar tu perfil. Intenta de nuevo.')
@@ -191,6 +187,89 @@ export function ReservaStep4DatosCliente({ onNext, onBack }: Props) {
     }
   }
 
+  // ── Escenario sin sesión: solo se ofrece iniciar sesión ────────
+  // Ya no existe reserva de invitado — para proteger la agenda y
+  // poder gestionar la cita después, hace falta una cuenta. Por eso
+  // aquí NO se muestra el formulario de datos, solo las opciones de
+  // acceso (agrandadas). Al volver ya autenticado, useReserva
+  // restaura este mismo paso con todo lo avanzado hasta ahora.
+  if (!esAutenticado) {
+    const redirectReserva = `${ROUTES.login}?redirect=${encodeURIComponent(ROUTES.reservar)}`
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2
+            className="font-display text-2xl font-semibold mb-1"
+            style={{ color: 'var(--pub-text)' }}
+          >
+            Inicia sesión para continuar
+          </h2>
+          <p className="text-sm" style={{ color: 'var(--pub-text-muted)' }}>
+            Para proteger tu reserva y poder gestionarla después (ver, reagendar o cancelar
+            tu cita), necesitas una cuenta.
+          </p>
+        </div>
+
+        <div
+          className="rounded-2xl border p-6 sm:p-8 space-y-5"
+          style={{ borderColor: 'rgba(245, 241, 234,0.2)', background: 'rgba(245, 241, 234,0.04)' }}
+        >
+          <p className="text-base" style={{ color: 'var(--pub-text)' }}>
+            ¿Ya tienes una cuenta? Inicia sesión para autocompletar tus datos.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <a
+              href={redirectReserva}
+              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-base font-semibold transition-all duration-200"
+              style={{
+                background: 'linear-gradient(135deg, var(--pub-gold) 0%, var(--pub-gold-strong) 100%)',
+                color: '#171310',
+                boxShadow: '0 2px 12px rgba(245, 241, 234,0.3)',
+              }}
+            >
+              Iniciar sesion
+            </a>
+            <button
+              type="button"
+              onClick={handleLoginGoogle}
+              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-base font-semibold border transition-all duration-200"
+              style={{ borderColor: 'rgba(245, 241, 234,0.35)', color: 'var(--pub-text)' }}
+            >
+              <IconGoogle />
+              Continuar con Google
+            </button>
+          </div>
+
+          <p className="text-sm" style={{ color: 'var(--pub-text-muted)' }}>
+            ¿No tienes cuenta todavía?{' '}
+            <a
+              href={`${ROUTES.registro}?redirect=${encodeURIComponent(ROUTES.reservar)}`}
+              className="underline underline-offset-2 font-medium"
+              style={{ color: 'var(--pub-gold)' }}
+            >
+              Regístrate
+            </a>
+            . Es rápido y así puedes ver el estado de tu cita cuando quieras.
+          </p>
+        </div>
+
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm border transition-all duration-200"
+            style={{ borderColor: 'rgba(245, 241, 234,0.3)', color: 'var(--pub-text-muted)' }}
+          >
+            <IconArrowLeft />
+            Atras
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Encabezado */}
@@ -202,41 +281,9 @@ export function ReservaStep4DatosCliente({ onNext, onBack }: Props) {
           Tus datos
         </h2>
         <p className="text-sm" style={{ color: 'var(--pub-text-muted)' }}>
-          {esAutenticado
-            ? 'Confirma tu información para continuar.'
-            : 'Ingresa tus datos para apartar la cita. No necesitas crear una cuenta.'}
+          Confirma tu información para continuar.
         </p>
       </div>
-
-      {/* Escenario autenticado con Google — opción de conectar cuenta */}
-      {!esAutenticado && (
-        <div
-          className="rounded-xl border p-4"
-          style={{ borderColor: 'rgba(245, 241, 234,0.2)', background: 'rgba(245, 241, 234,0.04)' }}
-        >
-          <p className="text-sm mb-3" style={{ color: 'var(--pub-text-muted)' }}>
-            ¿Ya tienes una cuenta? Inicia sesión para autocompletar tus datos.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <a
-              href={ROUTES.login}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm border transition-all duration-200"
-              style={{ borderColor: 'rgba(245, 241, 234,0.3)', color: 'var(--pub-text)' }}
-            >
-              Iniciar sesion
-            </a>
-            <button
-              type="button"
-              onClick={handleLoginGoogle}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm border transition-all duration-200"
-              style={{ borderColor: 'rgba(245, 241, 234,0.3)', color: 'var(--pub-text)' }}
-            >
-              <IconGoogle />
-              Continuar con Google
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Formulario */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -277,24 +324,15 @@ export function ReservaStep4DatosCliente({ onNext, onBack }: Props) {
           </Campo>
         </div>
 
-        <Campo
-          label="Correo electrónico"
-          error={errors.email?.message}
-          required={esAutenticado}
-        >
+        <Campo label="Correo electrónico" error={errors.email?.message} required>
           <input
             {...register('email')}
             type="email"
             autoComplete="email"
-            placeholder="opcional"
+            placeholder="tu@correo.com"
             className={inputClass}
             style={inputStyle}
           />
-          {!esAutenticado && (
-            <p className="text-xs mt-1" style={{ color: 'var(--pub-text-muted)' }}>
-              Si lo ingresas, te enviaremos la confirmacion de tu cita.
-            </p>
-          )}
         </Campo>
 
         {/* [C8] Consentimiento de tratamiento de datos */}

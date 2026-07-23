@@ -28,7 +28,7 @@ export default function PrivacidadPage() {
         Política de Privacidad
       </h1>
       <p className="mb-10 text-sm text-gray-400">
-        Versión 1.0 — vigente desde la fecha de publicación
+        Versión 1.1 — vigente desde la fecha de publicación
       </p>
 
       <Section title="1. Responsable del tratamiento">
@@ -46,28 +46,42 @@ export default function PrivacidadPage() {
           <li>Nombre completo</li>
           <li>Número de teléfono</li>
           <li>Dirección de correo electrónico</li>
+          <li>
+            Credenciales de tu cuenta (correo y contraseña cifrada, o los datos básicos
+            de tu perfil de Google si inicias sesión con esa opción). Crear una cuenta es
+            obligatorio para poder reservar una cita
+          </li>
           <li>Fotografías de referencia de cortes o estilos (solo con consentimiento explícito)</li>
-          <li>Información de citas: servicios, fechas, pagos</li>
+          <li>Información de citas: servicios, fechas y horarios reservados</li>
+          <li>
+            Datos técnicos de tu suscripción a notificaciones push del navegador
+            (identificador de suscripción, claves de cifrado y tipo de navegador), solo
+            si activas esa opción
+          </li>
           <li>Dirección IP (registrada en consentimientos para cumplimiento legal)</li>
         </ul>
       </Section>
 
       <Section title="3. Finalidad del tratamiento">
         <ul className="list-disc space-y-1 pl-5 text-sm">
+          <li>Crear y administrar tu cuenta de usuario</li>
           <li>Gestionar reservas y citas de servicios de peluquería</li>
-          <li>Enviar notificaciones y recordatorios de citas</li>
-          <li>Procesar pagos y anticipos</li>
+          <li>Enviar notificaciones y recordatorios de citas por correo, WhatsApp o notificación push del navegador (según actives cada canal)</li>
           <li>Mejorar la experiencia del usuario en la plataforma</li>
           <li>Cumplir obligaciones legales y contables</li>
         </ul>
+        <p className="mt-3 text-sm">
+          El pago del servicio se realiza directamente en el local, el día de la cita — el
+          sitio no procesa pagos en línea ni almacena datos de tarjetas o medios de pago.
+        </p>
       </Section>
 
       <Section title="4. Base legal del tratamiento">
         <p>
           El tratamiento de tus datos se basa en el consentimiento explícito que otorgas
-          al momento de registrarte o realizar una reserva, conforme a la Ley 1581 de 2012
-          y el Decreto 1377 de 2013. Puedes revocar tu consentimiento en cualquier momento
-          contactándonos directamente.
+          al crear tu cuenta, requisito indispensable para reservar servicios, conforme a
+          la Ley 1581 de 2012 y el Decreto 1377 de 2013. Puedes revocar tu consentimiento
+          en cualquier momento contactándonos directamente.
         </p>
       </Section>
 
@@ -105,8 +119,8 @@ export default function PrivacidadPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
           <li>
-            <strong>Supabase</strong> — almacenamiento de base de datos y archivos
-            (supabase.com)
+            <strong>Supabase</strong> — almacenamiento de base de datos, autenticación y
+            archivos (supabase.com)
           </li>
           <li>
             <strong>Vercel</strong> — hospedaje de la aplicación web (vercel.com)
@@ -119,13 +133,31 @@ export default function PrivacidadPage() {
             <strong>Google OAuth</strong> — inicio de sesión con cuenta de Google
             (opcional)
           </li>
+          <li>
+            <strong>Resend</strong> — envío de correos de confirmación y recordatorios
+            (resend.com)
+          </li>
+          <li>
+            <strong>Meta / WhatsApp Business Cloud API</strong> — envío de notificaciones
+            de citas por WhatsApp, si activas ese canal (business.whatsapp.com)
+          </li>
         </ul>
         <p className="mt-3 text-sm">
           No vendemos ni cedemos tus datos personales a terceros con fines comerciales.
         </p>
       </Section>
 
-      <Section title="8. Seguridad">
+      <Section title="8. Cookies y tecnologías similares">
+        <p>
+          Usamos únicamente cookies técnicas, estrictamente necesarias para mantener tu
+          sesión iniciada (gestionadas por Supabase Auth) y para recordar tu rol al navegar
+          el panel administrativo. No usamos cookies de publicidad ni de rastreo entre
+          sitios. Si en el futuro se activa una herramienta de analítica de uso, esta
+          política se actualizará antes de que entre en funcionamiento.
+        </p>
+      </Section>
+
+      <Section title="9. Seguridad">
         <p>
           Implementamos medidas técnicas y organizativas para proteger tus datos contra
           acceso no autorizado, incluyendo cifrado en tránsito (HTTPS), acceso restringido
@@ -133,7 +165,7 @@ export default function PrivacidadPage() {
         </p>
       </Section>
 
-      <Section title="9. Fotografías">
+      <Section title="10. Fotografías">
         <p>
           Las fotografías de diseños que subas a la plataforma se almacenan de forma
           privada y solo son accesibles por ti y por el personal del Negocio. Su
@@ -142,7 +174,7 @@ export default function PrivacidadPage() {
         </p>
       </Section>
 
-      <Section title="10. Cambios en esta política">
+      <Section title="11. Cambios en esta política">
         <p>
           Cuando modifiquemos esta política te notificaremos por correo electrónico y
           publicaremos la nueva versión con su fecha de vigencia. El uso continuado de la
@@ -150,7 +182,7 @@ export default function PrivacidadPage() {
         </p>
       </Section>
 
-      <Section title="11. Contacto">
+      <Section title="12. Contacto">
         <p>
           Para cualquier solicitud relacionada con tus datos personales o para ejercer
           tus derechos como titular, utiliza el formulario de contacto disponible en el

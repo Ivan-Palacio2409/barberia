@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { ConfiguracionNegocio } from '@/types'
-import { actualizarConfiguracion } from '@/services/configuracion'
+import { actualizarConfiguracion, getConfiguracion } from '@/services/configuracion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,6 +20,7 @@ interface Props {
 }
 
 export function FormConfiguracionNegocio({ config, onGuardado }: Props) {
+  const [configId,            setConfigId]            = useState(config.id)
   const [nombre,              setNombre]              = useState(config.nombre)
   const [direccion,           setDireccion]           = useState(config.direccion ?? '')
   const [telefono,            setTelefono]            = useState(config.telefono ?? '')
@@ -54,19 +55,26 @@ export function FormConfiguracionNegocio({ config, onGuardado }: Props) {
       tiempo_descanso_min:  descansoNum,
     }
 
-    const resultado = await actualizarConfiguracion(config.id, payload)
+    const resultado = await actualizarConfiguracion(configId, payload)
     setGuardando(false)
 
     if (resultado.data) {
+      setConfigId(resultado.data.id)
       setGuardado(true)
       setTimeout(() => setGuardado(false), 3000)
       onGuardado(resultado.data)
     } else {
-      // Se muestra el mensaje real de Supabase/Postgres (ej. una
-      // política de RLS bloqueando el UPDATE) en vez de uno
-      // genérico, para poder diagnosticar la causa sin tener que
-      // ir a revisar la consola del navegador.
+      // Se muestra el mensaje real (ej. una política de RLS
+      // bloqueando el UPDATE, o el id desactualizado) en vez de uno
+      // genérico, para poder diagnosticar la causa sin tener que ir
+      // a revisar la consola del navegador.
       setError(resultado.error ? `No se pudo guardar: ${resultado.error}` : 'No se pudo guardar la configuración')
+
+      // Auto-recuperación: si el id quedó desactualizado, se trae
+      // el actual para que el próximo clic en "Guardar" sí funcione
+      // sin que la persona tenga que recargar la página a mano.
+      const actual = await getConfiguracion()
+      if (actual && actual.id !== configId) setConfigId(actual.id)
     }
   }
 

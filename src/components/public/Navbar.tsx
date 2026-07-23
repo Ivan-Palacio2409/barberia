@@ -27,9 +27,10 @@ export function Navbar() {
   }, [user])
 
   const links = [
-    { href: ROUTES.servicios, label: 'Servicios' },
-    { href: ROUTES.galeria,   label: 'Galería' },
+    
     { href: ROUTES.reservar,  label: 'Reservar' },
+    { href: ROUTES.galeria,   label: 'Galería' },
+    { href: ROUTES.servicios, label: 'Servicios' },
     { href: ROUTES.resenas,   label: 'Reseñas' },
   ]
 

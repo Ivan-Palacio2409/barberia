@@ -82,7 +82,7 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
     setServerError(null)
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle(redirect)
     if (error) setServerError('No se pudo iniciar con Google. Intenta de nuevo.')
   }
 

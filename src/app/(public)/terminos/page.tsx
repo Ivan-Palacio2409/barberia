@@ -27,7 +27,7 @@ export default function TerminosPage() {
         Términos y Condiciones
       </h1>
       <p className="mb-10 text-sm text-gray-400">
-        Versión 1.0 — vigente desde la fecha de publicación
+        Versión 1.1 — vigente desde la fecha de publicación
       </p>
 
       <Section title="1. Aceptación">
@@ -49,7 +49,17 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="3. Reservas">
+      <Section title="3. Cuenta de usuario obligatoria">
+        <p>
+          Para reservar una cita es obligatorio crear una cuenta (con correo y contraseña,
+          o iniciando sesión con Google). No se permiten reservas como invitado. Esto nos
+          permite verificar tu identidad, protegerte de reservas hechas a tu nombre por
+          terceros y permitirte ver, reagendar o cancelar tus citas desde tu perfil en
+          cualquier momento.
+        </p>
+      </Section>
+
+      <Section title="4. Reservas">
         <ul className="list-disc space-y-1 pl-5 text-sm">
           <li>
             Las reservas quedan confirmadas únicamente después de recibir la notificación
@@ -66,7 +76,7 @@ export default function TerminosPage() {
         </ul>
       </Section>
 
-      <Section title="4. Reagendamientos">
+      <Section title="5. Reagendamientos">
         <p>
           Puedes reagendar tu cita con al menos <strong>24 horas de antelación</strong> a
           la hora programada, directamente desde tu perfil o contactando al Negocio. Los
@@ -75,7 +85,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="5. Cancelaciones e inasistencias">
+      <Section title="6. Cancelaciones e inasistencias">
         <p>
           Las cancelaciones realizadas con más de 24 horas de antelación no generan
           penalidad. La inasistencia repetida sin aviso puede resultar en restricciones
@@ -83,7 +93,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="6. Pago del servicio">
+      <Section title="7. Pago del servicio">
         <p>
           El sitio solo gestiona la reserva del horario: no se realiza ningún pago en
           línea ni se solicitan datos de tarjetas o medios de pago a través del sitio.
@@ -91,7 +101,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="7. Responsabilidades del Negocio">
+      <Section title="8. Responsabilidades del Negocio">
         <ul className="list-disc space-y-1 pl-5 text-sm">
           <li>Prestar los servicios reservados con profesionalismo y calidad.</li>
           <li>Notificar al cliente ante cualquier cambio o cancelación.</li>
@@ -103,16 +113,16 @@ export default function TerminosPage() {
         </ul>
       </Section>
 
-      <Section title="8. Responsabilidades del cliente">
+      <Section title="9. Responsabilidades del cliente">
         <ul className="list-disc space-y-1 pl-5 text-sm">
-          <li>Proporcionar información veraz y actualizada al momento de registrarse o reservar.</li>
+          <li>Proporcionar información veraz y actualizada al crear tu cuenta y al reservar.</li>
           <li>Asistir puntualmente a las citas confirmadas.</li>
           <li>Notificar con anticipación suficiente en caso de no poder asistir.</li>
           <li>No compartir sus credenciales de acceso con terceros.</li>
         </ul>
       </Section>
 
-      <Section title="9. Uso de fotografías">
+      <Section title="10. Uso de fotografías">
         <p>
           El cliente puede subir fotografías de referencia o de resultados con fines
           exclusivos de gestión del servicio. La carga de fotografías requiere
@@ -122,7 +132,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="10. Propiedad intelectual">
+      <Section title="11. Propiedad intelectual">
         <p>
           El contenido, diseño y funcionalidad de la plataforma son propiedad del Negocio
           o de sus proveedores de tecnología. Queda prohibida su reproducción o
@@ -130,7 +140,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="11. Modificaciones">
+      <Section title="12. Modificaciones">
         <p>
           El Negocio puede modificar estos términos en cualquier momento. Los cambios
           serán notificados por correo electrónico y publicados en esta página con su
@@ -139,7 +149,7 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="12. Legislación aplicable">
+      <Section title="13. Legislación aplicable">
         <p>
           Estos términos se rigen por la legislación colombiana. Cualquier controversia
           será resuelta ante los jueces y tribunales competentes de Colombia.

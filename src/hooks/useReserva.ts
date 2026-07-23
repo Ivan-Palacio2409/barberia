@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Servicio } from '@/types'
 
 // ============================================================
@@ -86,7 +87,9 @@ const INITIAL: Omit<
   consentimientoFotos: false,
 }
 
-export const useReserva = create<ReservaState>((set, get) => ({
+export const useReserva = create<ReservaState>()(
+  persist(
+    (set, get) => ({
   ...INITIAL,
 
   setPaso: (paso) => set({ paso }),
@@ -148,4 +151,32 @@ export const useReserva = create<ReservaState>((set, get) => ({
       (acc, s) => acc + s.servicio.precio * s.cantidad,
       0,
     ),
-}))
+    }),
+    {
+      name: 'reserva-en-curso',
+      // sessionStorage (no localStorage): la reserva en curso no debe
+      // sobrevivir entre pestañas/sesiones distintas, solo a la
+      // navegación completa que ocurre al iniciar sesión con Google
+      // (Supabase redirige fuera del sitio y vuelve por /auth/callback,
+      // lo que reinicia el estado de memoria de Zustand). Gracias a
+      // esto, cuando la persona vuelve ya autenticada, la reserva
+      // sigue exactamente donde iba (servicios, fecha, hora y paso).
+      storage: createJSONStorage(() => sessionStorage),
+      // `fotosReferencia` contiene objetos File — no son serializables
+      // a JSON, así que se excluyen del guardado (si el usuario ya
+      // había adjuntado fotos y la navegación las descarta, se le
+      // pedirá adjuntarlas de nuevo en el paso 5, que es lo único
+      // que no puede sobrevivir a un login con Google).
+      partialize: (state) => ({
+        paso: state.paso,
+        serviciosSeleccionados: state.serviciosSeleccionados,
+        fechaSeleccionada: state.fechaSeleccionada,
+        horaInicio: state.horaInicio,
+        horaFin: state.horaFin,
+        datosCliente: state.datosCliente,
+        notasAdicionales: state.notasAdicionales,
+        consentimientoFotos: state.consentimientoFotos,
+      }),
+    }
+  )
+)

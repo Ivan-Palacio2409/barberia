@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { z } from 'zod'
@@ -28,6 +29,8 @@ type FormValues = z.infer<typeof schema>
 
 export default function RegistroPage() {
   const { signUp, signInWithGoogle } = useAuth()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') ?? '/'
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -57,7 +60,7 @@ export default function RegistroPage() {
 
   const handleGoogle = async () => {
     setServerError(null)
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle(redirect)
     if (error) setServerError('No se pudo iniciar con Google. Intenta de nuevo.')
   }
 
@@ -74,7 +77,7 @@ export default function RegistroPage() {
             el enlace para activar tu cuenta.
           </p>
           <Link
-            href="/login"
+            href={`/login?redirect=${encodeURIComponent(redirect)}`}
             className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:opacity-90"
           >
             Ir al inicio de sesión
@@ -198,7 +201,10 @@ export default function RegistroPage() {
 
         <p className="text-center text-sm text-gray-500">
           Ya tienes cuenta?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link
+            href={`/login?redirect=${encodeURIComponent(redirect)}`}
+            className="font-medium text-primary hover:underline"
+          >
             Inicia sesión
           </Link>
         </p>
