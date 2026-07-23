@@ -41,7 +41,7 @@ export function Footer() {
               <span className="font-display text-base font-semibold" style={{ color: 'var(--pub-text)' }}>BARBERÍA</span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--pub-text-muted)' }}>
-              Tu peluquería de confianza. Cortes, barba y tratamientos capilares con un solo estilista dedicado a ti.
+              Tu peluquería de confianza. Cortes y barba.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map((s) => (

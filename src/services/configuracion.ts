@@ -27,7 +27,7 @@ export async function getConfiguracion(): Promise<ConfiguracionNegocio | null> {
 export async function actualizarConfiguracion(
   id: string,
   payload: Partial<Omit<ConfiguracionNegocio, 'id' | 'updated_at'>>
-): Promise<ConfiguracionNegocio | null> {
+): Promise<{ data: ConfiguracionNegocio | null; error: string | null }> {
   const supabase = createClient()
 
   const { data, error } = await supabase
@@ -38,9 +38,9 @@ export async function actualizarConfiguracion(
     .single()
 
   if (error) {
-    logger.error('Error al actualizar configuración:', error.message)
-    return null
+    logger.error('Error al actualizar configuración:', error.message, error.code)
+    return { data: null, error: error.message }
   }
 
-  return data as ConfiguracionNegocio
+  return { data: data as ConfiguracionNegocio, error: null }
 }

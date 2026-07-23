@@ -24,6 +24,11 @@ export interface FiltroNotificaciones {
   tipo?: TipoNotificacion | ''
 }
 
+// Tipos que ya no se generan (no habia cron que los procesara y
+// quedaban "pendientes"/"vencidos" para siempre); se excluyen del
+// panel del admin por si quedan filas viejas en la base de datos.
+const TIPOS_EXCLUIDOS: TipoNotificacion[] = ['recordatorio_mismo_dia', 'recordatorio_1_hora']
+
 // ============================================================
 // Fase 28 — Variantes para Client Components (cliente de browser)
 // Usadas por el hook useNotificacionesAdminRealtime para refrescar
@@ -42,6 +47,7 @@ export async function getNotificacionesAdminClient(
       *,
       cliente:clientes ( id, nombre, telefono, email )
     `)
+    .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
     .order('fecha_programada', { ascending: false })
     .limit(300)
 
@@ -73,6 +79,7 @@ export async function getResumenNotificacionesClient(): Promise<{
   const { data, error } = await supabase
     .from('notificaciones')
     .select('enviado, canal, fecha_programada')
+    .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
 
   if (error || !data) {
     return { pendientes: 0, enviadas_hoy: 0, total: 0, por_canal: { email: 0, whatsapp: 0, ambos: 0 } }
@@ -98,6 +105,7 @@ export async function countNotificacionesPendientesClient(): Promise<number> {
     .from('notificaciones')
     .select('id', { count: 'exact', head: true })
     .eq('enviado', false)
+    .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
     .lte('fecha_programada', new Date().toISOString())
 
   if (error) return 0

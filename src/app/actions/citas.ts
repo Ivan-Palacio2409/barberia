@@ -130,7 +130,7 @@ export async function crearCitaCompleta(
     .single()
 
   if (errorCita || !cita) {
-    logger.error('[crearCitaCompleta] Error INSERT cita:', errorCita?.message)
+    logger.error('[crearCitaCompleta] Error INSERT cita:', errorCita?.message, errorCita?.code)
 
     // QA fase 30: si dos personas reservan el mismo horario al
     // mismo tiempo, el paso 1 (re-validación) puede pasar para
@@ -152,6 +152,17 @@ export async function crearCitaCompleta(
         error:
           'Justo se reservó ese horario. Por favor elige otro.',
       }
+    }
+
+    // 42501 = insufficient_privilege — RLS bloqueó el INSERT. Esto
+    // pasa sobre todo con reservas de invitados (sin sesión) si la
+    // política "reserva_publica_insert_cita" (migración 030) no
+    // está aplicada en la base de datos. Se deja un log explícito
+    // porque, para el usuario final, se ve igual que cualquier otro
+    // error genérico y es la causa más común reportada de "Error al
+    // crear la cita." al reservar sin iniciar sesión.
+    if (errorCita?.code === '42501') {
+      logger.error('[crearCitaCompleta] Posible RLS faltante: revisar que la migración 030_rls_flujo_reserva_publica.sql esté aplicada en Supabase.')
     }
 
     return { ok: false, code: 'ERROR_GENERICO', error: 'Error al crear la cita.' }
@@ -297,44 +308,11 @@ export async function crearCitaCompleta(
     })
   }
 
-  // Recordatorio del mismo día: 8:00 a.m. del día de la cita (o
-  // "ahora" si la cita es hoy antes de las 8 a.m., para no perderlo).
-  const fechaCita = new Date(`${input.fecha}T08:00:00`)
-  const momentoMismoDia = fechaCita.getTime() < Date.now() ? Date.now() : fechaCita.getTime()
-  if (momentoMismoDia < inicioCitaMs) {
-    filasRecordatorios.push({
-      cliente_id: input.clienteId,
-      cita_id: citaId,
-      tipo: 'recordatorio_mismo_dia',
-      canal: 'whatsapp',
-      destinatario: 'cliente',
-      fecha_programada: new Date(momentoMismoDia).toISOString(),
-      enviado: false,
-    })
-  }
-
-  // Recordatorio 1 hora antes — para el CLIENTE y para el ADMIN.
-  const momento1h = inicioCitaMs - 60 * 60 * 1000
-  if (momento1h > Date.now()) {
-    filasRecordatorios.push({
-      cliente_id: input.clienteId,
-      cita_id: citaId,
-      tipo: 'recordatorio_1_hora',
-      canal: 'whatsapp',
-      destinatario: 'cliente',
-      fecha_programada: new Date(momento1h).toISOString(),
-      enviado: false,
-    })
-    filasRecordatorios.push({
-      cliente_id: input.clienteId,
-      cita_id: citaId,
-      tipo: 'recordatorio_1_hora',
-      canal: 'whatsapp',
-      destinatario: 'admin',
-      fecha_programada: new Date(momento1h).toISOString(),
-      enviado: false,
-    })
-  }
+  // NOTA: los recordatorios "mismo día" y "1 hora antes" se
+  // desactivaron — no hay cron que procese /api/notificaciones/procesar,
+  // así que quedaban como "pendiente"/"vencida" para siempre y se
+  // mostraban rotos tanto en la campana del cliente como en el
+  // panel del admin. Solo se deja programado el recordatorio de 24h.
 
   if (filasRecordatorios.length > 0) {
     const { error: errorRecordatorios } = await supabase.from('notificaciones').insert(filasRecordatorios)

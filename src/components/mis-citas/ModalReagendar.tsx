@@ -138,11 +138,11 @@ export function ModalReagendar({ cita, clienteId, onClose, onSuccess }: ModalRea
   return (
     /* Overlay */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="modal-light-card fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.45)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="relative w-full max-w-md rounded-2xl bg-white shadow-xl">
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: 'rgba(41, 36, 33,0.2)' }}>
           <h2 className="font-display text-lg font-semibold">Reagendar cita</h2>

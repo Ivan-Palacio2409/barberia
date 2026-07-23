@@ -61,7 +61,7 @@ function formatFecha(fecha: string) {
 
 // ── Componente ───────────────────────────────────────────────
 export default function PerfilPage() {
-  const { user, profile, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth()
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [citas, setCitas] = useState<Cita[]>([])
   const [loadingData, setLoadingData] = useState(true)
@@ -141,22 +141,22 @@ export default function PerfilPage() {
           </div>
 
           {/* Estadisticas rapidas */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{citasCompletadas.length}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Citas completadas</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6">
+            <div className="text-center min-w-0 px-1">
+              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{citasCompletadas.length}</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">Citas completadas</p>
             </div>
-            <div className="text-center border-x border-border">
-              <p className="text-2xl font-bold text-foreground">{formatCOP(totalInvertido)}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Total en servicios</p>
+            <div className="text-center min-w-0 px-1 border-x border-border">
+              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{formatCOP(totalInvertido)}</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">Total en servicios</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">
+            <div className="text-center min-w-0 px-1">
+              <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
                 {cliente?.fecha_ultima_visita
                   ? new Date(cliente.fecha_ultima_visita).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
                   : '—'}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">Ultima visita</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">Ultima visita</p>
             </div>
           </div>
         </div>
@@ -192,7 +192,11 @@ export default function PerfilPage() {
               key={profileKey}
               profile={profile}
               cliente={cliente}
-              onSaved={() => setProfileKey((k) => k + 1)}
+              onSaved={() => {
+                setProfileKey((k) => k + 1)
+                refreshProfile()
+                cargarDatos()
+              }}
             />
           </div>
         )}

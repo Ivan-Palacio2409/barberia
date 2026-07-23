@@ -57,12 +57,16 @@ export function FormConfiguracionNegocio({ config, onGuardado }: Props) {
     const resultado = await actualizarConfiguracion(config.id, payload)
     setGuardando(false)
 
-    if (resultado) {
+    if (resultado.data) {
       setGuardado(true)
       setTimeout(() => setGuardado(false), 3000)
-      onGuardado(resultado)
+      onGuardado(resultado.data)
     } else {
-      setError('No se pudo guardar la configuración')
+      // Se muestra el mensaje real de Supabase/Postgres (ej. una
+      // política de RLS bloqueando el UPDATE) en vez de uno
+      // genérico, para poder diagnosticar la causa sin tener que
+      // ir a revisar la consola del navegador.
+      setError(resultado.error ? `No se pudo guardar: ${resultado.error}` : 'No se pudo guardar la configuración')
     }
   }
 

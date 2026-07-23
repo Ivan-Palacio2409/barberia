@@ -124,11 +124,11 @@ export function ModalResena({ cita, clienteId, onClose, onSuccess }: ModalResena
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      className="modal-light-card fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.45)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <div>

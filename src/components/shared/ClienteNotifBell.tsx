@@ -22,13 +22,16 @@ interface NotifItem {
 const TIPOS_LABEL: Record<string, string> = {
   confirmacion_cita:       'Tu cita fue confirmada',
   recordatorio_24_horas:   'Recordatorio: cita manana',
-  recordatorio_mismo_dia:  'Recordatorio: cita hoy',
-  recordatorio_1_hora:     'Tu cita es en 1 hora',
   reagendamiento_cita:     'Cita reagendada',
   cancelacion_cita:        'Cita cancelada',
   solicitud_resena:        'Deja tu resena',
   aviso_lista_espera:      'Hay disponibilidad para ti',
 }
+
+// Tipos que ya no se generan (no habia cron que los procesara y
+// quedaban "pendientes"/"vencidos" para siempre); se excluyen tambien
+// por si quedan filas viejas en la base de datos.
+const TIPOS_EXCLUIDOS = ['recordatorio_mismo_dia', 'recordatorio_1_hora']
 
 function formatRelativo(s: string) {
   const diff = Date.now() - new Date(s).getTime()
@@ -60,6 +63,7 @@ export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
         .select('id, tipo, fecha_programada, enviado')
         .eq('cliente_id', clienteId)
         .eq('destinatario', 'cliente')
+        .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
         .order('fecha_programada', { ascending: false })
         .limit(10)
 

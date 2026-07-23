@@ -122,6 +122,48 @@
      .admin-theme arriba). El resto de /cliente sigue con el tema
      claro original.
      ════════════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════════════
+     RESET CLARO PARA MODALES BLANCOS — ModalCancelar, ModalReagendar
+     y ModalResena (mis-citas) se diseñaron con tarjeta blanca
+     (bg-white) fija, pero pueden montarse dentro de una página con
+     .cliente-perfil-theme (fondo oscuro). Sin este reset, heredan
+     --foreground/--muted-foreground/--border ya oscurecidos para
+     texto claro, quedando casi ilegibles sobre el fondo blanco del
+     modal. Esta clase fija esas variables a los valores del tema
+     claro original, sin importar el tema del ancestro.
+     ════════════════════════════════════════════════════════════ */
+  .modal-light-card {
+    color-scheme: light;
+
+    --background:       36 22% 97%;
+    --foreground:       20 12% 12%;
+
+    --card:             0 0% 100%;
+    --card-foreground:  20 12% 12%;
+
+    --popover:          0 0% 100%;
+    --popover-foreground: 20 12% 12%;
+
+    --primary:          20 10% 16%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:        36 22% 94%;
+    --secondary-foreground: 20 12% 20%;
+
+    --accent:           38 42% 47%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted:            30 12% 91%;
+    --muted-foreground: 20 8% 45%;
+
+    --destructive:      0 75% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:           30 15% 86%;
+    --input:            30 15% 86%;
+    --ring:              20 10% 16%;
+  }
+
   .cliente-perfil-theme {
     color-scheme: dark;
 

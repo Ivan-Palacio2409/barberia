@@ -22,7 +22,7 @@ const schema = loginSchema
 type FormValues = z.infer<typeof schema>
 
 export default function LoginPage() {
-  const { signIn, signInWithGoogle, user, loading } = useAuth()
+  const { signIn, signInWithGoogle, resendConfirmation, user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') ?? '/'
@@ -32,6 +32,9 @@ export default function LoginPage() {
     oauthError ? 'Error al autenticar con Google. Intenta de nuevo.' : null
   )
   const [submitting, setSubmitting] = useState(false)
+  const [correoSinConfirmar, setCorreoSinConfirmar] = useState<string | null>(null)
+  const [reenviando, setReenviando] = useState(false)
+  const [reenviado, setReenviado] = useState(false)
 
   const {
     register,
@@ -47,12 +50,34 @@ export default function LoginPage() {
   const onSubmit = async (values: FormValues) => {
     setSubmitting(true)
     setServerError(null)
+    setCorreoSinConfirmar(null)
+    setReenviado(false)
     const { error } = await signIn(values.email, values.password)
     if (error) {
-      setServerError('Correo o contraseña incorrectos.')
+      // QA: Supabase devuelve "Email not confirmed" cuando la cuenta
+      // existe pero todavía no se confirmó el correo de registro.
+      // Antes esto se mostraba igual que credenciales inválidas,
+      // así que alguien que acababa de registrarse y entraba con
+      // los datos EXACTOS que puso veía "correo o contraseña
+      // incorrectos" — muy confuso. Ahora se distingue y se ofrece
+      // reenviar el correo de confirmación.
+      if (error.toLowerCase().includes('confirm')) {
+        setCorreoSinConfirmar(values.email)
+        setServerError('Tu cuenta existe, pero falta confirmar tu correo. Revisa tu bandeja de entrada (y spam) y haz clic en el enlace que te enviamos.')
+      } else {
+        setServerError('Correo o contraseña incorrectos.')
+      }
       setSubmitting(false)
     }
     // Si no hay error, onAuthStateChange redirige automáticamente
+  }
+
+  const handleReenviar = async () => {
+    if (!correoSinConfirmar) return
+    setReenviando(true)
+    const { error } = await resendConfirmation(correoSinConfirmar)
+    setReenviando(false)
+    if (!error) setReenviado(true)
   }
 
   const handleGoogle = async () => {
@@ -78,8 +103,21 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {/* Error global */}
           {serverError && (
-            <div role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-              {serverError}
+            <div role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 space-y-2">
+              <p>{serverError}</p>
+              {correoSinConfirmar && !reenviado && (
+                <button
+                  type="button"
+                  onClick={handleReenviar}
+                  disabled={reenviando}
+                  className="text-xs font-medium text-primary underline hover:no-underline disabled:opacity-60"
+                >
+                  {reenviando ? 'Reenviando...' : 'Reenviar correo de confirmación'}
+                </button>
+              )}
+              {reenviado && (
+                <p className="text-xs text-green-700">Te reenviamos el correo. Revisa tu bandeja de entrada.</p>
+              )}
             </div>
           )}
 

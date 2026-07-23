@@ -44,7 +44,7 @@ export function ServicesSection({ categorias }: Props) {
             Nuestros servicios
           </h2>
           <p className="text-base leading-relaxed max-w-lg" style={{ color: 'var(--pub-text-muted)' }}>
-            Desde el corte clásico hasta los tratamientos más completos. Elige el servicio que mejor se adapte a ti.
+            Tu servicio favorito está a un clic de distancia. Nuestro servicio está pensado para brindarte una experiencia única y satisfactoria.
           </p>
         </div>
 

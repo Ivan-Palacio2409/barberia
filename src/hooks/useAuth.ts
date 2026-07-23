@@ -28,6 +28,8 @@ interface UseAuthReturn {
   signOut: () => Promise<void>
   signInWithGoogle: () => Promise<{ error: string | null }>
   getClienteId: () => Promise<string | null>
+  refreshProfile: () => Promise<void>
+  resendConfirmation: (email: string) => Promise<{ error: string | null }>
 }
 
 export function useAuth(): UseAuthReturn {
@@ -105,6 +107,20 @@ export function useAuth(): UseAuthReturn {
     [supabase]
   )
 
+  // ── Reenviar correo de confirmación ──────────────────────────
+  // Cuando el login falla porque la cuenta existe pero el correo
+  // aún no fue confirmado, Supabase devuelve "Email not confirmed"
+  // (que antes se mostraba como "correo o contraseña incorrectos",
+  // muy confuso). Este helper deja reenviar el correo desde /login.
+  const resendConfirmation = useCallback(
+    async (email: string) => {
+      const { error } = await supabase.auth.resend({ type: 'signup', email })
+      if (error) return { error: error.message }
+      return { error: null }
+    },
+    [supabase]
+  )
+
   // ── Sign out ─────────────────────────────────────────────────
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
@@ -123,6 +139,15 @@ export function useAuth(): UseAuthReturn {
     if (error) return { error: error.message }
     return { error: null }
   }, [supabase])
+
+  // ── Refrescar el profile del usuario actual sin recargar la pagina ──
+  // Se usa despues de guardar cambios (ej. EditarPerfilForm) para que
+  // el nombre/telefono/foto se actualicen de una vez en toda la UI
+  // que consume useAuth().profile.
+  const refreshProfile = useCallback(async () => {
+    if (!user) return
+    await fetchProfile(user.id)
+  }, [user, fetchProfile])
 
   // ── Obtener cliente_id del usuario actual ────────────────────
   const getClienteId = useCallback(async (): Promise<string | null> => {
@@ -146,5 +171,7 @@ export function useAuth(): UseAuthReturn {
     signOut,
     signInWithGoogle,
     getClienteId,
+    refreshProfile,
+    resendConfirmation,
   }
 }
