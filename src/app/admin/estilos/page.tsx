@@ -1,40 +1,32 @@
 'use client'
 
 // ============================================================
-// /admin/estilos — Fase 20
+// /admin/estilos — Fase 20 (simplificado)
 // Gestión del catálogo de diseños con cuadrícula visual.
+// Sin categorías: la galería pública solo muestra imágenes.
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react'
-import type { CatalogoEstilo, CategoriaServicio } from '@/types'
+import type { CatalogoEstilo } from '@/types'
 import { getAllEstilosAdmin } from '@/services/catalogo'
-import { getCategorias as getCategoriasServicio } from '@/services/categorias'
 import { GrillaEstilos } from '@/components/admin/estilos/GrillaEstilos'
 import { ModalEstilo } from '@/components/admin/estilos/ModalEstilo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
-type EstiloConCat = CatalogoEstilo & { categoria: CategoriaServicio }
-
 export default function AdminEstilosPage() {
-  const [estilos,      setEstilos]      = useState<EstiloConCat[]>([])
-  const [categorias,   setCategorias]   = useState<CategoriaServicio[]>([])
+  const [estilos,      setEstilos]      = useState<CatalogoEstilo[]>([])
   const [loading,      setLoading]      = useState(true)
   const [busqueda,     setBusqueda]     = useState('')
-  const [filtroCateg, setFiltroCateg]  = useState<string>('todas')
   const [soloDestacados, setSoloDestacados] = useState(false)
   const [editando,     setEditando]     = useState<CatalogoEstilo | null>(null)
   const [modalAbierto, setModalAbierto] = useState(false)
 
   const cargar = useCallback(async () => {
     setLoading(true)
-    const [dsns, cats] = await Promise.all([
-      getAllEstilosAdmin(),
-      getCategoriasServicio(),
-    ])
+    const dsns = await getAllEstilosAdmin()
     setEstilos(dsns)
-    setCategorias(cats)
     setLoading(false)
   }, [])
 
@@ -47,16 +39,11 @@ export default function AdminEstilosPage() {
 
   const estilosFiltrados = estilos.filter((d) => {
     const matchBusqueda =
-      busqueda === '' ||
-      d.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      d.categoria?.nombre?.toLowerCase().includes(busqueda.toLowerCase())
-
-    const matchCateg =
-      filtroCateg === 'todas' || d.categoria_id === filtroCateg
+      busqueda === '' || d.titulo.toLowerCase().includes(busqueda.toLowerCase())
 
     const matchDestacado = !soloDestacados || d.destacado
 
-    return matchBusqueda && matchCateg && matchDestacado
+    return matchBusqueda && matchDestacado
   })
 
   const totalDestacados = estilos.filter((d) => d.destacado).length
@@ -81,11 +68,10 @@ export default function AdminEstilosPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {[
           { label: 'Total diseños', value: estilos.length, color: 'text-foreground' },
           { label: 'Destacados', value: totalDestacados, color: 'text-primary' },
-          { label: 'Categorías', value: categorias.length, color: 'text-muted-foreground' },
         ].map(({ label, value, color }) => (
           <div key={label} className="rounded-xl border border-border bg-card p-4 text-center">
             <p className={`text-2xl font-bold font-display ${color}`}>{value}</p>
@@ -105,24 +91,12 @@ export default function AdminEstilosPage() {
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <Input
-            placeholder="Buscar por título o categoría..."
+            placeholder="Buscar por título..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="pl-9"
           />
         </div>
-
-        {/* Filtro categoría */}
-        <select
-          value={filtroCateg}
-          onChange={(e) => setFiltroCateg(e.target.value)}
-          className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 shrink-0"
-        >
-          <option value="todas">Todas las categorías</option>
-          {categorias.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-          ))}
-        </select>
 
         {/* Toggle destacados */}
         <button
@@ -157,7 +131,6 @@ export default function AdminEstilosPage() {
       {modalAbierto && (
         <ModalEstilo
           estilo={editando}
-          categorias={categorias}
           onClose={cerrar}
           onSaved={guardar}
         />

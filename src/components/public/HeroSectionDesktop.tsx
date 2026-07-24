@@ -104,17 +104,17 @@ export function HeroSectionDesktop() {
         style={{ background: 'linear-gradient(to top, var(--pub-bg) 0%, transparent 100%)' }}
       />
 
-      <div className="relative z-10 pt-24 w-full flex flex-col items-center">
+      <div className="relative z-10 pt-20 w-full flex flex-col items-center">
         {/* Nombre de marca + subtítulo */}
         <div ref={titleRef} className="flex flex-col items-center will-change-transform">
           <h1
-            className="font-display text-6xl font-semibold leading-[1.05]"
+            className="font-display text-5xl font-semibold leading-[1.05]"
             style={{ color: 'var(--pub-gold-strong)' }}
           >
             BARBERÍA
           </h1>
 
-          <div className="mt-3 flex items-center justify-center gap-4">
+          <div className="mt-2 flex items-center justify-center gap-4">
             <span aria-hidden="true" className="h-px w-8 pub-barberpole shrink-0" />
             <p
               className="text-sm font-semibold uppercase tracking-[0.3em] whitespace-nowrap"
@@ -138,7 +138,7 @@ export function HeroSectionDesktop() {
             <p
               ref={wordmarkRef}
               aria-hidden="true"
-              className="font-display select-none leading-[0.82] tracking-tight text-center text-[clamp(5rem,12.5vw,13rem)] will-change-transform"
+              className="font-display select-none leading-[0.82] tracking-tight text-center text-[clamp(4rem,min(11vw,15vh),10.5rem)] will-change-transform"
               style={{
                 color: 'var(--pub-gold-strong)',
                 fontWeight: 700,
@@ -153,8 +153,8 @@ export function HeroSectionDesktop() {
           {/* Retrato del barbero, superpuesto sobre el wordmark */}
           <div
             ref={photoRef}
-            className="relative mx-auto -mt-24 w-[36%] max-w-md shrink-0 will-change-transform"
-            style={{ aspectRatio: '3 / 4.3' }}
+            className="relative mx-auto -mt-16 w-[30%] max-w-sm shrink-0 will-change-transform"
+            style={{ aspectRatio: '3 / 4' }}
           >
             {/* QA (jul 2026): resplandor de estudio detrás del retrato —
                 le da profundidad y un acabado "poster" en vez del recorte
@@ -228,7 +228,7 @@ export function HeroSectionDesktop() {
           </div>
 
           {/* Botón de reserva */}
-          <div ref={buttonRef} className="relative -mt-2 flex justify-center pb-10 will-change-transform">
+          <div ref={buttonRef} className="relative -mt-2 flex justify-center pb-6 will-change-transform">
             <Link
               href={ROUTES.reservar}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-semibold uppercase tracking-[0.12em] shadow-lg transition-opacity hover:opacity-90"

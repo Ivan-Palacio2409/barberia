@@ -1,31 +1,28 @@
 'use client'
 
 import Image from 'next/image'
-import { FavoritoButton } from '@/components/perfil/FavoritoButton'
 import type { EstiloConCategoria } from '@/services/galeria'
-
-function formatPrice(precio: number) {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(precio)
-}
 
 interface Props {
   estilo: EstiloConCategoria
   onOpen: (estilo: EstiloConCategoria) => void
-  clienteId?: string | null        // Fase 14: si está autenticado muestra el corazon
-  favoritosIds?: Set<string>       // Fase 14: set de IDs ya guardados
 }
 
-export function DesignCard({ estilo: d, onOpen, clienteId, favoritosIds }: Props) {
+export function DesignCard({ estilo: d, onOpen }: Props) {
   return (
     <div
-      className="group relative w-full overflow-hidden rounded-2xl bg-[var(--pub-gold)]/10"
-      style={{ aspectRatio: '3 / 4' }}
+      className="group relative w-full overflow-hidden rounded-2xl bg-[var(--pub-gold)]/10 transition-shadow duration-300"
+      style={{
+        aspectRatio: '3 / 4',
+        // Destacado: anillo dorado bien visible alrededor de toda la
+        // tarjeta, no solo un icono pequeño, para que se note de un
+        // vistazo aunque no se pase el mouse por encima.
+        boxShadow: d.destacado
+          ? '0 0 0 2.5px var(--pub-gold-strong), 0 8px 24px rgba(233,193,118,0.25)'
+          : 'none',
+      }}
     >
-      {/* Imagen clickeable */}
+      {/* Imagen clickeable — es todo el contenido de la tarjeta */}
       <button
         type="button"
         className="absolute inset-0 w-full h-full cursor-zoom-in"
@@ -41,7 +38,7 @@ export function DesignCard({ estilo: d, onOpen, clienteId, favoritosIds }: Props
         />
       </button>
 
-      {/* Overlay en hover */}
+      {/* Overlay en hover: solo el título, nada más */}
       <div
         className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
         style={{
@@ -49,51 +46,20 @@ export function DesignCard({ estilo: d, onOpen, clienteId, favoritosIds }: Props
         }}
       >
         <p className="text-white text-sm font-semibold leading-tight line-clamp-2">{d.titulo}</p>
-        {d.precio_referencia && (
-          <p className="text-white/70 text-xs mt-0.5">Desde {formatPrice(d.precio_referencia)}</p>
-        )}
-        <div className="mt-2 flex items-center gap-1 text-white/60 text-xs">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <polyline points="15 3 21 3 21 9" />
-            <polyline points="9 21 3 21 3 15" />
-            <line x1="21" y1="3" x2="14" y2="10" />
-            <line x1="3" y1="21" x2="10" y2="14" />
-          </svg>
-          Ampliar
-        </div>
       </div>
 
-      {/* Badge categoria */}
-      {d.categoria && (
+      {/* Badge destacado — siempre visible (no solo en hover), con
+          etiqueta clara en vez de un simple icono que se confundia
+          con el resto de la tarjeta. */}
+      {d.destacado && (
         <div
-          className="absolute top-3 left-3 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-sm pointer-events-none"
-          style={{ background: 'rgba(255,255,255,0.88)', color: 'var(--pub-text)' }}
+          className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm"
+          style={{ background: 'var(--pub-gold-strong)', color: 'var(--pub-on-gold)' }}
         >
-          {d.categoria.nombre}
-        </div>
-      )}
-
-      {/* Boton favorito (solo cuando el usuario esta autenticado) — Fase 14 */}
-      {clienteId && (
-        <div className="absolute top-3 right-3 z-10">
-          <FavoritoButton
-            clienteId={clienteId}
-            catalogoEstiloId={d.id}
-            initialFavorite={favoritosIds?.has(d.id) ?? false}
-          />
-        </div>
-      )}
-
-      {/* Badge destacado (cuando no hay boton favorito) */}
-      {d.destacado && !clienteId && (
-        <div
-          className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center backdrop-blur-sm"
-          style={{ background: 'rgba(245, 245, 245,0.9)' }}
-          aria-label="Diseño destacado"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="1" aria-hidden>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
+          Destacado
         </div>
       )}
     </div>

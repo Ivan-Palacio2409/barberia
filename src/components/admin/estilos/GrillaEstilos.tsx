@@ -7,13 +7,11 @@
 // ============================================================
 
 import { useState } from 'react'
-import type { CatalogoEstilo, CategoriaServicio } from '@/types'
+import type { CatalogoEstilo } from '@/types'
 import { eliminarEstiloAdmin, toggleDestacadoEstilo } from '@/services/catalogo'
 
-type EstiloConCat = CatalogoEstilo & { categoria: CategoriaServicio }
-
 interface Props {
-  estilos:   EstiloConCat[]
+  estilos:   CatalogoEstilo[]
   onEdit:    (d: CatalogoEstilo) => void
   onDeleted: () => void
 }
@@ -37,11 +35,6 @@ export function GrillaEstilos({ estilos, onEdit, onDeleted }: Props) {
     setConfirmId(null)
     if (ok) onDeleted()
   }
-
-  const formatPrice = (p?: number | null) =>
-    p
-      ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(p)
-      : null
 
   if (estilos.length === 0) {
     return (
@@ -157,12 +150,6 @@ export function GrillaEstilos({ estilos, onEdit, onDeleted }: Props) {
           {/* Info */}
           <div className="p-3">
             <p className="text-sm font-medium text-foreground truncate">{d.titulo}</p>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-muted-foreground">{d.categoria?.nombre}</span>
-              {formatPrice(d.precio_referencia) && (
-                <span className="text-xs font-medium text-primary">{formatPrice(d.precio_referencia)}</span>
-              )}
-            </div>
           </div>
         </div>
       ))}

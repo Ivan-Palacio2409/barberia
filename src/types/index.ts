@@ -199,7 +199,7 @@ export interface Sugerencia {
 export interface CatalogoEstilo {
   id: string
   titulo: string
-  categoria_id: string
+  categoria_id?: string | null
   imagen_url: string
   precio_referencia?: number
   destacado: boolean

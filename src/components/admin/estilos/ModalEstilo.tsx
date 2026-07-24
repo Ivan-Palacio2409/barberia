@@ -1,15 +1,17 @@
 'use client'
 
 // ============================================================
-// ModalEstilo.tsx — Fase 20
+// ModalEstilo.tsx — Fase 20 (simplificado)
 // Modal para crear y editar diseños del catálogo público.
+// Solo imagen + título + destacado: sin categoría ni precio de
+// referencia, a pedido — la galería pública ya no los usa.
 // ============================================================
 
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { CatalogoEstilo, CategoriaServicio } from '@/types'
+import type { CatalogoEstilo } from '@/types'
 import { crearEstiloAdmin, actualizarEstiloAdmin } from '@/services/catalogo'
 import { uploadImage, generateFilePath, BUCKETS, deleteImage } from '@/lib/supabase/storage'
 import { Label } from '@/components/ui/label'
@@ -19,22 +21,19 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ImageUpload } from '@/components/forms/ImageUpload'
 
 const schema = z.object({
-  titulo:           z.string().min(2, 'Mínimo 2 caracteres').max(100),
-  categoria_id:     z.string().uuid('Selecciona una categoría'),
-  precio_referencia: z.coerce.number().min(0).optional(),
-  destacado:        z.boolean().default(false),
+  titulo:    z.string().min(2, 'Mínimo 2 caracteres').max(100),
+  destacado: z.boolean().default(false),
 })
 
 type FormValues = z.infer<typeof schema>
 
 interface Props {
   estilo?: CatalogoEstilo | null
-  categorias: CategoriaServicio[]
   onClose: () => void
   onSaved: () => void
 }
 
-export function ModalEstilo({ estilo, categorias, onClose, onSaved }: Props) {
+export function ModalEstilo({ estilo, onClose, onSaved }: Props) {
   const isEditing = !!estilo
   const [loading, setLoading]           = useState(false)
   const [error, setError]               = useState<string | null>(null)
@@ -44,10 +43,8 @@ export function ModalEstilo({ estilo, categorias, onClose, onSaved }: Props) {
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      titulo:            estilo?.titulo            ?? '',
-      categoria_id:      estilo?.categoria_id      ?? '',
-      precio_referencia: estilo?.precio_referencia ?? undefined,
-      destacado:         estilo?.destacado         ?? false,
+      titulo:    estilo?.titulo    ?? '',
+      destacado: estilo?.destacado ?? false,
     },
   })
 
@@ -138,7 +135,9 @@ export function ModalEstilo({ estilo, categorias, onClose, onSaved }: Props) {
 
           {/* Imagen */}
           <div className="space-y-1.5">
-            <Label>Imagen del diseño {!isEditing && <span className="text-destructive">*</span>}</Label>
+            <Label className="text-foreground">
+              Imagen del diseño {!isEditing && <span className="text-destructive">*</span>}
+            </Label>
             {imagePreview ? (
               <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -160,33 +159,9 @@ export function ModalEstilo({ estilo, categorias, onClose, onSaved }: Props) {
 
           {/* Título */}
           <div className="space-y-1.5">
-            <Label htmlFor="titulo">Título</Label>
+            <Label htmlFor="titulo" className="text-foreground">Título</Label>
             <Input id="titulo" {...register('titulo')} placeholder="Ej: Fade clásico con línea de barba" />
             {errors.titulo && <p className="text-xs text-destructive">{errors.titulo.message}</p>}
-          </div>
-
-          {/* Categoría */}
-          <div className="space-y-1.5">
-            <Label htmlFor="categoria_id">Categoría</Label>
-            <select
-              id="categoria_id"
-              {...register('categoria_id')}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-            >
-              <option value="">Selecciona una categoría</option>
-              {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-              ))}
-            </select>
-            {errors.categoria_id && <p className="text-xs text-destructive">{errors.categoria_id.message}</p>}
-          </div>
-
-          {/* Precio referencia */}
-          <div className="space-y-1.5">
-            <Label htmlFor="precio_referencia">
-              Precio de referencia (COP) <span className="text-muted-foreground">(opcional)</span>
-            </Label>
-            <Input id="precio_referencia" type="number" min="0" step="500" {...register('precio_referencia')} placeholder="0" />
           </div>
 
           {/* Destacado */}
@@ -197,7 +172,7 @@ export function ModalEstilo({ estilo, categorias, onClose, onSaved }: Props) {
               {...register('destacado')}
               className="h-4 w-4 rounded border-input accent-primary"
             />
-            <Label htmlFor="destacado" className="font-normal cursor-pointer">
+            <Label htmlFor="destacado" className="font-normal cursor-pointer text-foreground">
               Marcar como diseño destacado (aparece primero en la galería)
             </Label>
           </div>

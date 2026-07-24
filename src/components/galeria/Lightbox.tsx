@@ -13,14 +13,6 @@ interface Props {
   hasNext?: boolean
 }
 
-function formatPrice(precio: number) {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(precio)
-}
-
 export function Lightbox({ estilo: d, onClose, onPrev, onNext, hasPrev, hasNext }: Props) {
   // Touch swipe
   const touchStartX = useRef<number | null>(null)
@@ -125,24 +117,7 @@ export function Lightbox({ estilo: d, onClose, onPrev, onNext, hasPrev, hasNext 
 
         {/* Info */}
         <div className="mt-4 px-1">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              {d.categoria && (
-                <p
-                  className="text-xs font-semibold uppercase tracking-widest mb-1"
-                  style={{ color: 'var(--pub-gold)' }}
-                >
-                  {d.categoria.nombre}
-                </p>
-              )}
-              <h2 className="text-white font-display text-xl font-semibold">{d.titulo}</h2>
-            </div>
-            {d.precio_referencia && (
-              <p className="text-white/70 text-sm font-medium shrink-0">
-                Desde {formatPrice(d.precio_referencia)}
-              </p>
-            )}
-          </div>
+          <h2 className="text-white font-display text-xl font-semibold">{d.titulo}</h2>
         </div>
       </div>
     </div>

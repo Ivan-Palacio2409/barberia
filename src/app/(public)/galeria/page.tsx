@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function GaleriaPage() {
-  const { estilos, categorias } = await getCatalogoConCategorias()
+  const { estilos } = await getCatalogoConCategorias()
 
   return (
     <main className="pt-24 pb-20 lg:pt-28 lg:pb-28">
@@ -44,7 +44,7 @@ export default async function GaleriaPage() {
 
       {/* Grid con filtros */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <GalleryGrid estilos={estilos} categorias={categorias} />
+        <GalleryGrid estilos={estilos} />
       </div>
     </main>
   )
