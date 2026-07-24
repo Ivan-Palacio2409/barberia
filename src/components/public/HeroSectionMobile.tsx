@@ -20,7 +20,7 @@ import { ShaderBackground } from '@/components/public/ShaderBackground'
 // ============================================================
 
 const BARBER_PHOTO_URL =
-  'https://images.unsplash.com/photo-1754473397061-e18dc1091855?q=80&w=1200&auto=format&fit=crop'
+  'public/Hero.png'
 
 export function HeroSectionMobile() {
   const sectionRef = useRef<HTMLElement>(null)

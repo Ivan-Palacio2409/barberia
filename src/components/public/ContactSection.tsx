@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { BusinessMap } from '@/components/maps/BusinessMap'
 import { ROUTES } from '@/constants'
 import { FloatingBarberTools } from '@/components/decor/FloatingBarberTools'
+import { getConfiguracionPublica, urlInstagram, urlTiktok } from '@/services/configuracion-publica'
 
 const HORARIOS = [
   { dia: 'Lunes a viernes', hora: '8:00 am – 6:00 pm' },
@@ -9,7 +10,24 @@ const HORARIOS = [
   { dia: 'Domingos', hora: '8:00 am – 12:00 m' },
 ]
 
-export function ContactSection() {
+export async function ContactSection() {
+  const config = await getConfiguracionPublica()
+
+  const redes = [
+    { label: 'Instagram', href: urlInstagram(config?.redes_sociales?.instagram), icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    )},
+    { label: 'TikTok', href: urlTiktok(config?.redes_sociales?.tiktok), icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.77 1.52V6.78a4.85 4.85 0 0 1-1-.09z"/>
+      </svg>
+    )},
+  ].filter((s): s is typeof s & { href: string } => !!s.href)
+
   return (
     <section className="relative overflow-hidden py-20 lg:py-28" style={{ background: 'var(--pub-bg-soft)' }} aria-labelledby="contacto-titulo">
       <FloatingBarberTools compact className="opacity-70" />
@@ -102,28 +120,24 @@ export function ContactSection() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-4 pt-1">
-              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--pub-text-dim)' }}>Síguenos</span>
-              {[
-                { label: 'Instagram', href: '#', icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                    <rect x="2" y="2" width="20" height="20" rx="5" />
-                    <circle cx="12" cy="12" r="4" />
-                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                  </svg>
-                )},
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="tap-target rounded-lg border transition-colors hover:border-[var(--pub-gold)] hover:text-[var(--pub-gold)]"
-                  style={{ borderColor: 'var(--pub-border)', color: 'var(--pub-text-muted)' }}
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
+            {redes.length > 0 && (
+              <div className="flex items-center gap-4 pt-1">
+                <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--pub-text-dim)' }}>Síguenos</span>
+                {redes.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="tap-target rounded-lg border transition-colors hover:border-[var(--pub-gold)] hover:text-[var(--pub-gold)]"
+                    style={{ borderColor: 'var(--pub-border)', color: 'var(--pub-text-muted)' }}
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl overflow-hidden pub-card" style={{ minHeight: 380 }}>
