@@ -165,3 +165,27 @@ export async function countNotificacionesPendientes(): Promise<number> {
   if (error) return 0
   return count ?? 0
 }
+
+// jul 2026: conteo inicial (sin parpadeo, calculado en el servidor)
+// para la campana del admin reescrita como dropdown de alertas. Solo
+// cuenta las 3 alertas que le importan a la administradora: nueva
+// reserva, cancelacion, y nueva resena — no toda la cola de envios.
+const TIPOS_ALERTA_ADMIN: TipoNotificacion[] = [
+  'nueva_reserva_admin',
+  'cancelacion_cita',
+  'nueva_resena_admin',
+]
+
+export async function countAlertasAdminNoLeidas(): Promise<number> {
+  const supabase = await createClient()
+
+  const { count, error } = await supabase
+    .from('notificaciones')
+    .select('id', { count: 'exact', head: true })
+    .eq('destinatario', 'admin')
+    .eq('leida', false)
+    .in('tipo', TIPOS_ALERTA_ADMIN)
+
+  if (error) return 0
+  return count ?? 0
+}

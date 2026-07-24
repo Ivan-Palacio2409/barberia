@@ -115,6 +115,12 @@ export async function crearCitaCompleta(
   }
 
   // ── 2. INSERT cita ────────────────────────────────────────
+  // QA jul 2026: antes se creaba en 'pendiente' y requeria que el
+  // admin la "confirmara" a mano desde el dashboard. La
+  // administradora pidio que una reserva quede confirmada de una
+  // vez al hacerla (ni el cliente ni el admin deben confirmarla
+  // despues) — el flujo de asistencia post-cita (si asistio o no)
+  // sigue existiendo aparte, sin cambios.
   const { data: cita, error: errorCita } = await supabase
     .from('citas')
     .insert({
@@ -124,7 +130,7 @@ export async function crearCitaCompleta(
       hora_fin: input.horaFin,
       precio_total: input.precioTotal,
       notas: input.notas || null,
-      estado: 'pendiente',
+      estado: 'confirmada',
     })
     .select('id')
     .single()

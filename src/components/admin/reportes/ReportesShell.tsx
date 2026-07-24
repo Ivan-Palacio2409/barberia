@@ -141,17 +141,28 @@ export function ReportesShell({ reporte }: ReportesShellProps) {
   const [hasta, setHasta] = useState(hoy())
   const [reporteFiltrado, setReporteFiltrado] = useState<ReporteFiltrado | null>(null)
   const [servicios, setServicios] = useState<ServicioRendimiento[] | null>(null)
+  const [errorFiltros, setErrorFiltros] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const aplicarFiltros = () => {
+    setErrorFiltros(null)
     startTransition(async () => {
-      const [rf, sv] = await Promise.all([
-        fetchReporteConFiltros(desde, hasta),
-        fetchReportePorServicio(desde, hasta),
-      ])
-      setReporteFiltrado(rf)
-      setServicios(sv)
-      setTabActiva('filtros')
+      try {
+        const [rf, sv] = await Promise.all([
+          fetchReporteConFiltros(desde, hasta),
+          fetchReportePorServicio(desde, hasta),
+        ])
+        setReporteFiltrado(rf)
+        setServicios(sv)
+        setTabActiva('filtros')
+      } catch (e) {
+        // QA jul 2026: antes, si la llamada a la Server Action fallaba
+        // (red, timeout, etc.), la excepcion no controlada tumbaba
+        // toda la pagina a la pantalla de error generica. Ahora se
+        // muestra un mensaje inline y se puede reintentar sin perder
+        // el resto del panel.
+        setErrorFiltros('No se pudieron cargar los datos del periodo. Intenta de nuevo.')
+      }
     })
   }
 
@@ -224,16 +235,16 @@ export function ReportesShell({ reporte }: ReportesShellProps) {
             <IconFilter />
             {isPending ? 'Cargando...' : 'Aplicar filtros'}
           </button>
-          <button
-            onClick={() => setTabActiva('mes')}
-            className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors"
-          >
-            Ver mes actual
-          </button>
         </div>
+        {errorFiltros && (
+          <p className="text-xs text-destructive mt-2">{errorFiltros}</p>
+        )}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — un solo control para cambiar de vista: "Mes actual"
+          muestra el resumen del mes en curso, "Periodo personalizado"
+          se activa solo al presionar "Aplicar filtros", y "Por
+          servicio" el desglose por servicio del mismo periodo. */}
       <div className="flex gap-1 border-b border-border">
         {[
           { key: 'mes', label: 'Mes actual' },

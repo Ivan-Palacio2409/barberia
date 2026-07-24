@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import type { CitaDashboard } from '@/types'
-import { actionConfirmarCita, actionCompletarCita } from '@/app/actions/admin-citas'
+import { actionCompletarCita } from '@/app/actions/admin-citas'
 
 // ============================================================
 // CitasHoyWidget.tsx — Fase 17
@@ -38,18 +38,6 @@ export function CitasHoyWidget({ citas }: Props) {
   )
   const [errores, setErrores] = useState<Record<string, string>>({})
   const [pending, startTransition] = useTransition()
-
-  function handleConfirmar(id: string) {
-    setErrores((prev) => ({ ...prev, [id]: '' }))
-    startTransition(async () => {
-      const res = await actionConfirmarCita(id)
-      if (res.error) {
-        setErrores((prev) => ({ ...prev, [id]: res.error! }))
-      } else {
-        setEstados((prev) => ({ ...prev, [id]: 'confirmada' }))
-      }
-    })
-  }
 
   function handleCompletar(id: string) {
     setErrores((prev) => ({ ...prev, [id]: '' }))
@@ -99,17 +87,7 @@ export function CitasHoyWidget({ citas }: Props) {
                 {ESTADO_LABEL[estado] ?? estado}
               </span>
 
-              {estado === 'pendiente' && (
-                <button
-                  onClick={() => handleConfirmar(cita.id)}
-                  disabled={pending}
-                  className="text-xs px-3 py-1 rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
-                >
-                  Confirmar
-                </button>
-              )}
-
-              {(estado === 'pendiente' || estado === 'confirmada') && (
+              {estado === 'pendiente' || estado === 'confirmada' ? (
                 <button
                   onClick={() => handleCompletar(cita.id)}
                   disabled={pending}
@@ -117,7 +95,7 @@ export function CitasHoyWidget({ citas }: Props) {
                 >
                   Completar
                 </button>
-              )}
+              ) : null}
             </div>
           </li>
         )

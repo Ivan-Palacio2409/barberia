@@ -168,6 +168,21 @@ export async function crearResena({
     throw error
   }
 
+  // Aviso al admin: nueva reseña dejada por un cliente. No bloquea
+  // la creación de la reseña si falla el registro de la notificación.
+  const { error: errorNotifAdmin } = await supabase.from('notificaciones').insert({
+    cliente_id,
+    cita_id,
+    tipo: 'nueva_resena_admin',
+    canal: 'whatsapp',
+    destinatario: 'admin',
+    fecha_programada: new Date().toISOString(),
+    enviado: false,
+  })
+  if (errorNotifAdmin) {
+    logger.error('No se pudo registrar el aviso de nueva reseña al admin:', errorNotifAdmin.message)
+  }
+
   return data as Resena
 }
 

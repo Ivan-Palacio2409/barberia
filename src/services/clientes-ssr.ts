@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Cliente } from '@/types'
+import type { Cita, Cliente } from '@/types'
 import { logger } from '@/lib/logger'
 import type { ClienteConFrecuencia, ClientesConFrecuenciaResult } from '@/services/clientes'
 
@@ -88,4 +88,53 @@ export async function buscarClientes(query: string): Promise<ClienteConFrecuenci
       inactivo,
     }
   })
+}
+
+// ------------------------------------------------------------
+// CORRECCION (jul 2026): "Ver ficha" en /admin/clientes llevaba a
+// la pagina de error/not-found. src/app/admin/clientes/[id]/page.tsx
+// es un Server Component y llamaba a getClienteById/getHistorialCliente
+// desde services/clientes.ts (cliente de navegador, sin cookies de
+// sesion en el servidor) -> RLS bloqueaba la consulta -> null ->
+// notFound(). Se agregan aqui las mismas funciones usando el cliente
+// de servidor, mismo patron que el resto de este archivo.
+// ------------------------------------------------------------
+
+export async function getClienteById(id: string): Promise<Cliente | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('clientes')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) {
+    logger.error('Error al obtener cliente:', error.message)
+    return null
+  }
+
+  return data as Cliente | null
+}
+
+// Historial completo de citas de un cliente con servicios y pagos.
+export async function getHistorialCliente(clienteId: string): Promise<Cita[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('citas')
+    .select(`
+      *,
+      cita_servicios(servicio:servicios(*)),
+      estilos_referencia(*)
+    `)
+    .eq('cliente_id', clienteId)
+    .order('fecha', { ascending: false })
+
+  if (error) {
+    logger.error('Error al obtener historial del cliente:', error.message)
+    return []
+  }
+
+  return data as unknown as Cita[]
 }

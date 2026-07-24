@@ -1,15 +1,24 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 // ============================================================
-// ClienteNotifBell.tsx — Fase 24
+// ClienteNotifBell.tsx — Fase 24, reescrito jul 2026
 // Campana de notificaciones para el cliente autenticado.
 // Consulta la tabla notificaciones filtrando por su cliente_id.
 // Muestra un dropdown con las ultimas 5 y un badge de no leidas.
+//
+// QA jul 2026: el estado "leida" vivia solo en un useState local
+// (const [leidas, setLeidas] = useState<Set<string>>()) — se
+// perdia por completo al recargar la pagina, cerrar sesion, o
+// volver a entrar, y la campana volvia a mostrar todo como "no
+// leido" cada vez. Ahora se persiste en la base de datos (columna
+// notificaciones.leida, migracion 042): al abrir la campana se
+// marcan como leidas ahi mismo, y el contador solo vuelve a subir
+// cuando llega una notificacion realmente nueva.
 // ============================================================
 
 interface NotifItem {
@@ -17,6 +26,7 @@ interface NotifItem {
   tipo: string
   fecha_programada: string
   enviado: boolean
+  leida: boolean
 }
 
 const TIPOS_LABEL: Record<string, string> = {
@@ -51,28 +61,27 @@ interface ClienteNotifBellProps {
 export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
   const [notifs, setNotifs] = useState<NotifItem[]>([])
   const [open, setOpen] = useState(false)
-  const [leidas, setLeidas] = useState<Set<string>>(new Set())
   const panelRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  const cargar = useCallback(async () => {
     const supabase = createClient()
+    const { data } = await supabase
+      .from('notificaciones')
+      .select('id, tipo, fecha_programada, enviado, leida')
+      .eq('cliente_id', clienteId)
+      .eq('destinatario', 'cliente')
+      .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
+      .order('fecha_programada', { ascending: false })
+      .limit(10)
 
-    async function cargar() {
-      const { data } = await supabase
-        .from('notificaciones')
-        .select('id, tipo, fecha_programada, enviado')
-        .eq('cliente_id', clienteId)
-        .eq('destinatario', 'cliente')
-        .not('tipo', 'in', `(${TIPOS_EXCLUIDOS.join(',')})`)
-        .order('fecha_programada', { ascending: false })
-        .limit(10)
+    setNotifs((data ?? []) as NotifItem[])
+  }, [clienteId])
 
-      setNotifs((data ?? []) as NotifItem[])
-    }
-
+  useEffect(() => {
     cargar()
 
     // Suscripcion Realtime para nuevas notificaciones
+    const supabase = createClient()
     const channel = supabase
       .channel(`cliente-notifs-${clienteId}`)
       .on(
@@ -83,7 +92,7 @@ export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [clienteId])
+  }, [clienteId, cargar])
 
   // Cerrar al click fuera
   useEffect(() => {
@@ -96,13 +105,27 @@ export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
-  const noLeidas = notifs.filter(n => !leidas.has(n.id)).length
+  const noLeidas = notifs.filter(n => !n.leida).length
 
-  function handleAbrir() {
-    setOpen(v => !v)
-    // Marcar todas como leidas visualmente al abrir
-    if (!open) {
-      setLeidas(new Set(notifs.map(n => n.id)))
+  async function handleAbrir() {
+    const nuevoEstado = !open
+    setOpen(nuevoEstado)
+    if (nuevoEstado && noLeidas > 0) {
+      // Optimista en la UI, y se persiste en la base de datos para
+      // que sobreviva recargas y cierres de sesion.
+      setNotifs(prev => prev.map(n => ({ ...n, leida: true })))
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('notificaciones')
+        .update({ leida: true })
+        .eq('cliente_id', clienteId)
+        .eq('destinatario', 'cliente')
+        .eq('leida', false)
+      if (error) {
+        // Si falla la persistencia, se recarga para reflejar el
+        // estado real en vez de quedar desincronizado.
+        cargar()
+      }
     }
   }
 
@@ -163,7 +186,7 @@ export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
                   key={n.id}
                   className={cn(
                     'px-4 py-3 flex items-start gap-3',
-                    !leidas.has(n.id) && 'bg-[var(--pub-bg)]'
+                    !n.leida && 'bg-[var(--pub-bg)]'
                   )}
                 >
                   {/* Icono */}
@@ -183,7 +206,7 @@ export function ClienteNotifBell({ clienteId }: ClienteNotifBellProps) {
                     </p>
                   </div>
                   {/* Punto no leida */}
-                  {!leidas.has(n.id) && (
+                  {!n.leida && (
                     <span className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: 'var(--pub-gold)' }} />
                   )}
                 </li>

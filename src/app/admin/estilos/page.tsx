@@ -67,7 +67,7 @@ export default function AdminEstilosPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-foreground">Catálogo de Diseños</h1>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Galería</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Administra las fotos y diseños visibles en la galería pública
           </p>

@@ -6,8 +6,7 @@
 // ============================================================
 
 import { notFound } from 'next/navigation'
-import { getClienteById } from '@/services/clientes'
-import { getHistorialCliente } from '@/services/clientes'
+import { getClienteById, getHistorialCliente } from '@/services/clientes-ssr'
 import { FichaClienteShell } from '@/components/admin/clientes/FichaClienteShell'
 
 interface Props {

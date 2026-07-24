@@ -26,6 +26,7 @@ interface Props {
 const TIPOS_LABEL: Record<TipoNotificacion, string> = {
   confirmacion_cita:        'Confirmacion de cita',
   nueva_reserva_admin:      'Nueva reserva (admin)',
+  nueva_resena_admin:       'Nueva resena (admin)',
   recordatorio_24_horas:    'Recordatorio 24h',
   recordatorio_mismo_dia:   'Recordatorio mismo dia',
   recordatorio_1_hora:      'Recordatorio 1h antes',

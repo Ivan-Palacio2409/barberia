@@ -142,6 +142,7 @@ export interface ListaEspera {
 export type TipoNotificacion =
   | 'confirmacion_cita'
   | 'nueva_reserva_admin'
+  | 'nueva_resena_admin'
   | 'recordatorio_24_horas'
   | 'recordatorio_mismo_dia'
   | 'recordatorio_1_hora'
@@ -163,6 +164,9 @@ export interface Notificacion {
   canal: CanalNotificacion
   destinatario: DestinatarioNotificacion
   enviado: boolean
+  // Migracion 042: persistido en la base de datos (antes solo vivia
+  // en memoria del navegador y se perdia al recargar/cerrar sesion).
+  leida: boolean
   fecha_programada: string
 }
 

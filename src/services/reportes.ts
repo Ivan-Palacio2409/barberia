@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { hoyDate } from '@/lib/date-utils'
+import { logger } from '@/lib/logger'
 
 // ============================================================
 // src/services/reportes.ts — Rehecho (sin pagos/Wompi)
@@ -247,7 +248,43 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
 }
 
 // ── Reporte con rango de fechas personalizado ──────────────────
+function reporteFiltradoVacio(desde: string, hasta: string): ReporteFiltrado {
+  return {
+    desde,
+    hasta,
+    ingresos_periodo: 0,
+    total_citas: 0,
+    citas_completadas: 0,
+    citas_canceladas: 0,
+    citas_no_asistio: 0,
+    tasa_completadas: 0,
+    ticket_promedio: 0,
+    clientes_nuevos: 0,
+    serie_diaria: [],
+    top_servicios: [],
+    citas_detalle: [],
+  }
+}
+
 export async function getReporteConFiltros(
+  desde: string,
+  hasta: string
+): Promise<ReporteFiltrado> {
+  // QA jul 2026: "Aplicar filtros" mandaba a la pantalla de error
+  // genérica de la app cuando la consulta fallaba (rango sin datos,
+  // hipo de red/Supabase, etc.) porque el error no se controlaba y
+  // subía sin envolver hasta el error boundary raíz. Ahora se
+  // atrapa cualquier fallo y se devuelve un reporte vacío (la UI ya
+  // sabe mostrar "sin datos"), dejando el error real logueado.
+  try {
+    return await getReporteConFiltrosInterno(desde, hasta)
+  } catch (e) {
+    logger.error('[getReporteConFiltros]', e instanceof Error ? e.message : e)
+    return reporteFiltradoVacio(desde, hasta)
+  }
+}
+
+async function getReporteConFiltrosInterno(
   desde: string,
   hasta: string
 ): Promise<ReporteFiltrado> {
@@ -354,6 +391,18 @@ export async function getReporteConFiltros(
 
 // ── Rendimiento por servicio en un periodo ──────────────────────
 export async function getReportePorServicio(
+  desde: string,
+  hasta: string
+): Promise<ServicioRendimiento[]> {
+  try {
+    return await getReportePorServicioInterno(desde, hasta)
+  } catch (e) {
+    logger.error('[getReportePorServicio]', e instanceof Error ? e.message : e)
+    return []
+  }
+}
+
+async function getReportePorServicioInterno(
   desde: string,
   hasta: string
 ): Promise<ServicioRendimiento[]> {

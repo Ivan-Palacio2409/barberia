@@ -156,26 +156,56 @@ export function HeroSectionDesktop() {
             className="relative mx-auto -mt-24 w-[36%] max-w-md shrink-0 will-change-transform"
             style={{ aspectRatio: '3 / 4.3' }}
           >
+            {/* QA (jul 2026): resplandor de estudio detrás del retrato —
+                le da profundidad y un acabado "poster" en vez del recorte
+                plano que había antes. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-x-10 -inset-y-10 -z-10"
+              style={{
+                background:
+                  'radial-gradient(ellipse 62% 68% at 50% 38%, rgba(233,193,118,0.4) 0%, rgba(154,74,62,0.22) 48%, transparent 78%)',
+                filter: 'blur(28px)',
+              }}
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={BARBER_PHOTO_URL}
               alt="Barbero de BARBERÍA posando en el estudio"
               className="absolute inset-0 h-full w-full object-cover"
               style={{
-                filter: 'grayscale(0.55) contrast(1.08) brightness(0.92)',
+                // QA: se baja el grayscale/desaturación (antes 0.55, dejaba
+                // la foto plana y apagada) y se sube contraste/saturación
+                // para un look más nítido y profesional. El drop-shadow le
+                // da el mismo efecto de "recorte flotante" que la referencia.
+                filter:
+                  'grayscale(0.18) contrast(1.18) saturate(1.15) brightness(0.98) drop-shadow(0 24px 42px rgba(0,0,0,0.55))',
+                // Máscara nueva: recorte limpio en forma de retrato con solo
+                // los bordes emplumados, en vez de la elipse anterior que
+                // desvanecía el torso por el centro de la foto.
                 maskImage:
-                  'radial-gradient(ellipse 58% 62% at 50% 36%, black 40%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0.18) 82%, transparent 100%)',
+                  'radial-gradient(ellipse 78% 90% at 50% 40%, black 68%, rgba(0,0,0,0.9) 82%, transparent 100%)',
                 WebkitMaskImage:
-                  'radial-gradient(ellipse 58% 62% at 50% 36%, black 40%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0.18) 82%, transparent 100%)',
+                  'radial-gradient(ellipse 78% 90% at 50% 40%, black 68%, rgba(0,0,0,0.9) 82%, transparent 100%)',
               }}
             />
+            {/* Grading de color cálido sutil, sin oscurecer tanto como antes */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(to top, rgba(12,15,15,0.65) 0%, rgba(154,74,62,0.18) 45%, transparent 75%)',
+                  'linear-gradient(to top, rgba(12,15,15,0.45) 0%, rgba(154,74,62,0.14) 42%, transparent 72%)',
                 mixBlendMode: 'multiply',
+              }}
+            />
+            {/* Luz de borde (rim light) dorada para separar la silueta del fondo */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                boxShadow: 'inset 0 0 40px 6px rgba(233,193,118,0.14)',
+                mixBlendMode: 'screen',
               }}
             />
             <div

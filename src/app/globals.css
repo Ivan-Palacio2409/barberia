@@ -126,6 +126,20 @@
   .admin-theme input[type='time'],
   .admin-theme input[type='datetime-local'] {
     color-scheme: dark;
+    /* QA: el borde original (--border, muy cerca en luminosidad de
+       --card) se perdía casi por completo contra el fondo oscuro del
+       panel admin, y el texto/placeholder no tenía color explícito.
+       Se refuerzan ambos para que el campo se distinga claramente. */
+    background-color: hsl(180 4% 16%) !important;
+    border-color: hsl(39 20% 38%) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .admin-theme select:focus,
+  .admin-theme input[type='date']:focus,
+  .admin-theme input[type='time']:focus,
+  .admin-theme input[type='datetime-local']:focus {
+    border-color: hsl(var(--primary)) !important;
   }
 
   .admin-theme select option {
@@ -136,8 +150,21 @@
   .admin-theme input[type='date']::-webkit-calendar-picker-indicator,
   .admin-theme input[type='time']::-webkit-calendar-picker-indicator,
   .admin-theme input[type='datetime-local']::-webkit-calendar-picker-indicator {
-    filter: invert(0.85);
+    /* QA: invert(0.85) sin más dejaba el icono en un gris apagado,
+       casi invisible sobre el fondo ya oscuro. Se sube el invert al
+       máximo y se agrega brillo/opacidad para que quede blanco y
+       nítido, y un pequeño padding para que no quede pegado al borde. */
+    filter: invert(1) brightness(1.3);
+    opacity: 0.95;
     cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+  }
+
+  .admin-theme input[type='date']::-webkit-calendar-picker-indicator:hover,
+  .admin-theme input[type='time']::-webkit-calendar-picker-indicator:hover,
+  .admin-theme input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+    background-color: hsl(0 0% 100% / 0.1);
   }
 
   /* ════════════════════════════════════════════════════════════

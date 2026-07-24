@@ -83,7 +83,6 @@ export function DetalleCitaShell({ cita, historial }: Props) {
     })
   }
 
-  const puedeConfirmar = cita.estado === 'pendiente'
   const puedeCompletar = cita.estado === 'confirmada'
   const puedeCancelar = cita.estado !== 'cancelada' && cita.estado !== 'completada'
   const puedeReagendar = cita.estado !== 'cancelada' && cita.estado !== 'completada'
@@ -115,17 +114,6 @@ export function DetalleCitaShell({ cita, historial }: Props) {
 
         {/* Acciones principales */}
         <div className="flex items-center gap-2 flex-wrap">
-          {puedeConfirmar && (
-            <button
-              onClick={() => handleEstado('confirmada')}
-              className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Confirmar
-            </button>
-          )}
           {puedeCompletar && (
             <button
               onClick={() => handleEstado('completada')}

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { countNotificacionesPendientes } from '@/services/notificaciones-admin-ssr'
+import { countAlertasAdminNoLeidas } from '@/services/notificaciones-admin-ssr'
 import { CampanaNotificaciones } from './CampanaNotificaciones'
 import { CerrarSesionBoton } from './CerrarSesionBoton'
 import { AdminMobileMenuButton } from './AdminMobileMenuButton'
@@ -27,7 +27,7 @@ export async function AdminNavbar() {
     if (profile?.nombre) nombreAdmin = profile.nombre
   }
 
-  const pendientes = await countNotificacionesPendientes()
+  const pendientes = await countAlertasAdminNoLeidas()
 
   const hoy = hoyLegible()
 

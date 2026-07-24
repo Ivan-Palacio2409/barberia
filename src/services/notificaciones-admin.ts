@@ -112,3 +112,81 @@ export async function countNotificacionesPendientesClient(): Promise<number> {
   if (error) return 0
   return count ?? 0
 }
+
+// ============================================================
+// Campana de alertas del admin (jul 2026)
+// A diferencia de countNotificacionesPendientesClient (que cuenta
+// TODA la cola de envios pendientes: recordatorios, confirmaciones,
+// etc. — util para la pagina de gestion /admin/notificaciones), la
+// campana del navbar admin ahora solo debe avisar de 3 eventos:
+// nueva reserva, cancelacion de una reserva, y nueva resena. El
+// estado "leida" se persiste en la base de datos (columna
+// notificaciones.leida, migracion 042) para que no se reinicie al
+// recargar la pagina ni al cerrar sesion.
+// ============================================================
+
+export const TIPOS_ALERTA_ADMIN = [
+  'nueva_reserva_admin',
+  'cancelacion_cita',
+  'nueva_resena_admin',
+] as const
+
+export interface AlertaAdmin {
+  id: string
+  tipo: string
+  fecha_programada: string
+  leida: boolean
+  cliente: { id: string; nombre: string } | null
+}
+
+export async function getAlertasAdminClient(limite = 10): Promise<AlertaAdmin[]> {
+  const supabase = createBrowserClient()
+
+  const { data, error } = await supabase
+    .from('notificaciones')
+    .select('id, tipo, fecha_programada, leida, cliente:clientes(id, nombre)')
+    .eq('destinatario', 'admin')
+    .in('tipo', TIPOS_ALERTA_ADMIN)
+    .order('fecha_programada', { ascending: false })
+    .limit(limite)
+
+  if (error) {
+    logger.error('[getAlertasAdminClient]', error.message)
+    return []
+  }
+
+  return (data ?? []) as unknown as AlertaAdmin[]
+}
+
+export async function countAlertasAdminNoLeidasClient(): Promise<number> {
+  const supabase = createBrowserClient()
+
+  const { count, error } = await supabase
+    .from('notificaciones')
+    .select('id', { count: 'exact', head: true })
+    .eq('destinatario', 'admin')
+    .eq('leida', false)
+    .in('tipo', TIPOS_ALERTA_ADMIN)
+
+  if (error) return 0
+  return count ?? 0
+}
+
+// Marca como leidas todas las alertas del admin que esten sin leer.
+// Se llama al abrir la campana; queda guardado en la base de datos,
+// asi que no vuelve a marcar "hay notificaciones" hasta que llegue
+// una alerta nueva de verdad.
+export async function marcarAlertasAdminLeidasClient(): Promise<void> {
+  const supabase = createBrowserClient()
+
+  const { error } = await supabase
+    .from('notificaciones')
+    .update({ leida: true })
+    .eq('destinatario', 'admin')
+    .eq('leida', false)
+    .in('tipo', TIPOS_ALERTA_ADMIN)
+
+  if (error) {
+    logger.error('[marcarAlertasAdminLeidasClient]', error.message)
+  }
+}

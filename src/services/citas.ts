@@ -94,7 +94,7 @@ export async function crearCita({
 
   const { data: cita, error: errorCita } = await supabase
     .from('citas')
-    .insert({ cliente_id, fecha, hora_inicio, hora_fin, precio_total, notas })
+    .insert({ cliente_id, fecha, hora_inicio, hora_fin, precio_total, notas, estado: 'confirmada' })
     .select()
     .single()
 

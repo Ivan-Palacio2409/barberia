@@ -9,6 +9,10 @@ import { useAdminSidebar } from './AdminSidebarContext'
 // AdminSidebar.tsx — Fase 17
 // Sidebar de navegacion del panel administrativo.
 // SVG inline sin dependencias externas.
+//
+// Actualizacion: se agrega el item "Galería" (/admin/estilos),
+// que ya existía como página pero no estaba enlazado en el menú,
+// por lo que nunca aparecía como opción para la administradora.
 // ============================================================
 
 interface NavItem {
@@ -75,6 +79,17 @@ const navItems: NavItem[] = [
         <line x1="3" y1="6" x2="3.01" y2="6" />
         <line x1="3" y1="12" x2="3.01" y2="12" />
         <line x1="3" y1="18" x2="3.01" y2="18" />
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/estilos',
+    label: 'Galería',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <path d="M21 15l-5-5L5 21" />
       </svg>
     ),
   },
