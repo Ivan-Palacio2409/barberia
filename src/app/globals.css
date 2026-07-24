@@ -114,6 +114,32 @@
     --color-gold:       #c5a059;
   }
 
+  /* ────────────────────────────────────────────────────────────
+     Controles nativos del navegador (<select>, <input type="date">)
+     dentro del panel admin. `color-scheme: dark` en .admin-theme ya
+     se hereda, pero el popup de <option> y el icono del datepicker
+     no siempre lo respetan de forma consistente entre navegadores,
+     asi que se refuerzan explicitamente aca.
+     ──────────────────────────────────────────────────────────── */
+  .admin-theme select,
+  .admin-theme input[type='date'],
+  .admin-theme input[type='time'],
+  .admin-theme input[type='datetime-local'] {
+    color-scheme: dark;
+  }
+
+  .admin-theme select option {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+  }
+
+  .admin-theme input[type='date']::-webkit-calendar-picker-indicator,
+  .admin-theme input[type='time']::-webkit-calendar-picker-indicator,
+  .admin-theme input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+    cursor: pointer;
+  }
+
   /* ════════════════════════════════════════════════════════════
      TEMA OSCURO DEL PERFIL DE CLIENTE — a pedido, solo la página
      /cliente/perfil pasa a fondo negro. No toca font-family ni

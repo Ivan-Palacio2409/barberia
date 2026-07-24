@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { hoyDate } from '@/lib/date-utils'
 
 // ============================================================
 // src/services/reportes.ts — Rehecho (sin pagos/Wompi)
@@ -116,7 +117,7 @@ function buildSerieDiaria(citas: CitaRow[], desde: Date, hasta: Date): SerieDiar
 export async function getReporteResumen(): Promise<ReporteResumen> {
   const supabase = await createClient()
 
-  const hoy = new Date()
+  const hoy = hoyDate()
   const inicioMesActual = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
   const inicioMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)
   const finMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0)

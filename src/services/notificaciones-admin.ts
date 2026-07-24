@@ -1,6 +1,7 @@
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
 import type { CanalNotificacion, Notificacion, TipoNotificacion } from '@/types'
 import { logger } from '@/lib/logger'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // src/services/notificaciones-admin.ts — Fase 24
@@ -74,7 +75,7 @@ export async function getResumenNotificacionesClient(): Promise<{
 }> {
   const supabase = createBrowserClient()
 
-  const hoy = new Date().toISOString().slice(0, 10)
+  const hoy = hoyISO()
 
   const { data, error } = await supabase
     .from('notificaciones')

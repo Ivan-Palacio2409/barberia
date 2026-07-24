@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useReserva } from '@/hooks/useReserva'
 import type { CategoriaServicio, Servicio } from '@/types'
 
@@ -97,6 +97,17 @@ const BADGE_STYLES: Record<string, React.CSSProperties> = {
 export function ReservaStep1Servicios({ categorias, onNext }: Props) {
   const { serviciosSeleccionados, toggleServicio, duracionTotal, precioTotal } = useReserva()
   const [activeCat, setActiveCat] = useState<string>(categorias[0]?.id ?? '')
+
+  // Al entrar a la página, si el usuario aún no tiene ningún
+  // servicio elegido (primera visita o carrito vacío), preseleccionar
+  // el primero de la primera categoría para que pueda continuar de
+  // inmediato sin tener que elegir manualmente.
+  useEffect(() => {
+    if (serviciosSeleccionados.length === 0 && categorias[0]?.servicios[0]) {
+      toggleServicio(categorias[0].servicios[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const isSelected = (id: string) =>
     serviciosSeleccionados.some((s) => s.servicio.id === id)

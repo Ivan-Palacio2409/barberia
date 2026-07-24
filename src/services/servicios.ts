@@ -1,6 +1,7 @@
 import { createClient as createClientClient } from '@/lib/supabase/client'
 import type { CategoriaServicio, Servicio } from '@/types'
 import { logger } from '@/lib/logger'
+import { hoyISO } from '@/lib/date-utils'
 
 // Nota: getServiciosPorCategoria() (lectura pública SSR) vive en
 // servicios-ssr.ts — ver el comentario de ese archivo. Este
@@ -85,7 +86,7 @@ export async function actualizarServicio(
 export async function tienesCitasFuturas(servicioId: string): Promise<boolean> {
   const supabase = createClientClient()
 
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyISO()
 
   const { count } = await supabase
     .from('cita_servicios')

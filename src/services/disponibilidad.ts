@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { toMin, toTime, nombreDia, formatFechaLarga } from '@/lib/disponibilidad-utils'
+import { hoyDate, hoyISO } from '@/lib/date-utils'
 
 // Re-exportadas para no romper otros imports server-side existentes
 // (ej. server actions). Los Client Components deben importar estas
@@ -82,13 +83,12 @@ export async function getFechasDisponibles(
 ): Promise<string[]> {
   const supabase = await createClient()
 
-  const hoy = new Date()
-  hoy.setHours(0, 0, 0, 0)
+  const hoy = hoyDate()
 
   const hasta = new Date(hoy)
   hasta.setDate(hasta.getDate() + diasAdelante)
   const hastaISO = hasta.toISOString().split('T')[0]
-  const hoyISO = hoy.toISOString().split('T')[0]
+  const hoyStr = hoyISO()
 
   // Fetch en paralelo
   const [
@@ -105,17 +105,17 @@ export async function getFechasDisponibles(
     supabase
       .from('horarios_especiales')
       .select('fecha, hora_inicio, hora_fin, activo')
-      .gte('fecha', hoyISO)
+      .gte('fecha', hoyStr)
       .lte('fecha', hastaISO),
     supabase
       .from('dias_bloqueados')
       .select('fecha')
-      .gte('fecha', hoyISO)
+      .gte('fecha', hoyStr)
       .lte('fecha', hastaISO),
     supabase
       .from('citas')
       .select('fecha, hora_inicio, hora_fin')
-      .gte('fecha', hoyISO)
+      .gte('fecha', hoyStr)
       .lte('fecha', hastaISO)
       .not('estado', 'eq', 'cancelada'),
     supabase
@@ -220,8 +220,8 @@ export async function getSlotsDisponibles(
   // función) podía devolver slots "válidos" para una fecha ya
   // pasada, porque el cálculo solo mira horarios de trabajo y
   // citas existentes, nunca compara contra la fecha de hoy.
-  const hoyISO = new Date().toISOString().split('T')[0]
-  if (fecha < hoyISO) return []
+  const hoyStr = hoyISO()
+  if (fecha < hoyStr) return []
 
   const diaSemana = new Date(fecha + 'T12:00:00').getDay()
 

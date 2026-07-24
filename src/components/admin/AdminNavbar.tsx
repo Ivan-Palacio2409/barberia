@@ -4,6 +4,7 @@ import { countNotificacionesPendientes } from '@/services/notificaciones-admin-s
 import { CampanaNotificaciones } from './CampanaNotificaciones'
 import { CerrarSesionBoton } from './CerrarSesionBoton'
 import { AdminMobileMenuButton } from './AdminMobileMenuButton'
+import { hoyLegible } from '@/lib/date-utils'
 
 // ============================================================
 // AdminNavbar.tsx — Fase 24
@@ -28,12 +29,7 @@ export async function AdminNavbar() {
 
   const pendientes = await countNotificacionesPendientes()
 
-  const hoy = new Date().toLocaleDateString('es-CO', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  const hoy = hoyLegible()
 
   return (
     <header className="h-14 bg-card border-b border-border flex items-center justify-between gap-2 px-3 sm:px-6">

@@ -100,15 +100,9 @@ export function ModalReciboCita({ cita, onClose }: Props) {
         <div className="flex gap-2 pt-1">
           <button
             onClick={onClose}
-            className="flex-1 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted/40 transition-colors"
-          >
-            Cerrar
-          </button>
-          <button
-            onClick={() => router.push(`/admin/citas/${cita.id}`)}
             className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
           >
-            Ver cita completa
+            Cerrar
           </button>
         </div>
       </div>

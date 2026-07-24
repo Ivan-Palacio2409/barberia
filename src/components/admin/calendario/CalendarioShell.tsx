@@ -8,6 +8,7 @@ import { VistaDia } from './VistaDia'
 import { VistaSemana } from './VistaSemana'
 import { VistaMes } from './VistaMes'
 import { ModalNuevaCita } from './ModalNuevaCita'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // CalendarioShell.tsx — Fase 18
@@ -92,7 +93,7 @@ export function CalendarioShell({ citasIniciales, fechaInicial }: Props) {
           </button>
 
           <button
-            onClick={() => setFechaActual(new Date().toISOString().slice(0, 10))}
+            onClick={() => setFechaActual(hoyISO())}
             className="px-3 h-8 text-sm rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
           >
             Hoy

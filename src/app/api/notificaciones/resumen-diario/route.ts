@@ -30,6 +30,7 @@ import { dispatch } from '@/lib/notifications/dispatcher'
 import type { ResumenCitaAdmin } from '@/lib/notifications/index'
 import type { Cliente } from '@/types'
 import { logger } from '@/lib/logger'
+import { hoyDate } from '@/lib/date-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,7 +89,7 @@ async function enviarResumenDiario(req: NextRequest) {
 
   const supabase = createServiceRoleClient()
 
-  const dia = new Date()
+  const dia = hoyDate()
   dia.setDate(dia.getDate() + (esHoy ? 0 : 1))
   const diaStr = dia.toISOString().slice(0, 10)
 

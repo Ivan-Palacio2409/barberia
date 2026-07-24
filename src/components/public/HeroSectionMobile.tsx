@@ -19,8 +19,7 @@ import { ShaderBackground } from '@/components/public/ShaderBackground'
 // (Supabase Storage o /public).
 // ============================================================
 
-const BARBER_PHOTO_URL =
-  'public/Hero.png'
+const BARBER_PHOTO_URL = '/Hero.png'
 
 export function HeroSectionMobile() {
   const sectionRef = useRef<HTMLElement>(null)

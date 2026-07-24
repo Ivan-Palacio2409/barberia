@@ -7,6 +7,7 @@
 
 import { getCitasByRango } from '@/services/calendario'
 import { CalendarioShell } from '@/components/admin/calendario'
+import { hoyDate, hoyISO } from '@/lib/date-utils'
 
 export const metadata = {
   title: 'Calendario | Admin BARBERÍA',
@@ -15,7 +16,7 @@ export const metadata = {
 // Cargar rango amplio (mes anterior + 2 meses siguientes) para
 // que las 3 vistas tengan datos sin recargar.
 function getRango(): { desde: string; hasta: string } {
-  const hoy = new Date()
+  const hoy = hoyDate()
   const desde = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)
     .toISOString()
     .slice(0, 10)
@@ -28,7 +29,7 @@ function getRango(): { desde: string; hasta: string } {
 export default async function CalendarioPage() {
   const { desde, hasta } = getRango()
   const citas = await getCitasByRango(desde, hasta)
-  const hoy = new Date().toISOString().slice(0, 10)
+  const hoy = hoyISO()
 
   return (
     <div className="max-w-7xl mx-auto space-y-4">

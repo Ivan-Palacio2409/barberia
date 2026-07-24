@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type { DashboardStats, CitaDashboard, TopServicio } from '@/types'
+import { hoyDate, horaActualISO } from '@/lib/date-utils'
 
 // ============================================================
 // src/services/dashboard.ts — Fase 17 (rehecho: sin pagos)
@@ -28,7 +29,7 @@ function toArray<T>(rel: T | T[] | null | undefined): T[] {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const supabase = await createClient()
 
-  const hoy = new Date()
+  const hoy = hoyDate()
   const hoyStr = toDateStr(hoy)
 
   // Inicio de semana (últimos 7 días)
@@ -81,7 +82,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }))
 
   // ── Próxima cita ─────────────────────────────────────────
-  const ahora = new Date().toTimeString().slice(0, 5)
+  const ahora = horaActualISO()
   const proxima_cita: CitaDashboard | null =
     citas_hoy.find(
       (c) => c.hora_inicio > ahora && (c.estado === 'pendiente' || c.estado === 'confirmada')
