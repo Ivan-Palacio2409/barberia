@@ -161,58 +161,70 @@ export function HeroSectionDesktop() {
                 plano que había antes. */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-10 -inset-y-10 -z-10"
+              className="pointer-events-none absolute -inset-x-16 -inset-y-16 -z-10"
               style={{
                 background:
-                  'radial-gradient(ellipse 62% 68% at 50% 38%, rgba(233,193,118,0.4) 0%, rgba(154,74,62,0.22) 48%, transparent 78%)',
-                filter: 'blur(28px)',
+                  'radial-gradient(ellipse 55% 60% at 50% 38%, rgba(233,193,118,0.35) 0%, rgba(154,74,62,0.18) 45%, transparent 75%)',
+                filter: 'blur(40px)',
               }}
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={BARBER_PHOTO_URL}
-              alt="Barbero de BARBERÍA posando en el estudio"
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{
-                // QA: se baja el grayscale/desaturación (antes 0.55, dejaba
-                // la foto plana y apagada) y se sube contraste/saturación
-                // para un look más nítido y profesional. El drop-shadow le
-                // da el mismo efecto de "recorte flotante" que la referencia.
-                filter:
-                  'grayscale(0.18) contrast(1.18) saturate(1.15) brightness(0.98) drop-shadow(0 24px 42px rgba(0,0,0,0.55))',
-                // Máscara nueva: recorte limpio en forma de retrato con solo
-                // los bordes emplumados, en vez de la elipse anterior que
-                // desvanecía el torso por el centro de la foto.
-                maskImage:
-                  'radial-gradient(ellipse 78% 90% at 50% 40%, black 68%, rgba(0,0,0,0.9) 82%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse 78% 90% at 50% 40%, black 68%, rgba(0,0,0,0.9) 82%, transparent 100%)',
-              }}
-            />
-            {/* Grading de color cálido sutil, sin oscurecer tanto como antes */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(to top, rgba(12,15,15,0.45) 0%, rgba(154,74,62,0.14) 42%, transparent 72%)',
-                mixBlendMode: 'multiply',
-              }}
-            />
-            {/* Luz de borde (rim light) dorada para separar la silueta del fondo */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0"
-              style={{
-                boxShadow: 'inset 0 0 40px 6px rgba(233,193,118,0.14)',
-                mixBlendMode: 'screen',
-              }}
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
-              style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--pub-bg) 92%)' }}
-            />
+
+            {/* QA (jul 2026, revisión 2): la máscara CSS (mask-image) no se
+                estaba renderizando de forma confiable en todos los
+                navegadores/GPUs — el resultado era la foto como un
+                rectángulo duro sin fundirse con el fondo ("se ve como en
+                un cuadro"). Se reemplaza por: (1) un contenedor con
+                overflow-hidden y esquinas redondeadas en vez de la máscara
+                elíptica, y (2) una viñeta en primer plano que desvanece los
+                bordes de la foto hacia el color de fondo real de la
+                página. Esto funciona igual en cualquier navegador porque
+                usa gradientes normales, no mask-image. */}
+            <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={BARBER_PHOTO_URL}
+                alt="Barbero de BARBERÍA posando en el estudio"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{
+                  filter: 'grayscale(0.18) contrast(1.18) saturate(1.15) brightness(0.98)',
+                }}
+              />
+
+              {/* Grading de color cálido sutil, sin oscurecer tanto como antes */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(to top, rgba(12,15,15,0.45) 0%, rgba(154,74,62,0.14) 42%, transparent 72%)',
+                  mixBlendMode: 'multiply',
+                }}
+              />
+              {/* Luz de borde (rim light) dorada para separar la silueta del fondo */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  boxShadow: 'inset 0 0 40px 6px rgba(233,193,118,0.14)',
+                  mixBlendMode: 'screen',
+                }}
+              />
+              {/* Viñeta: funde los bordes de la foto con el fondo real de
+                  la sección, para que no se note como un recorte cuadrado */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-px"
+                style={{
+                  background:
+                    'radial-gradient(ellipse 72% 80% at 50% 38%, transparent 48%, var(--pub-bg) 96%)',
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
+                style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--pub-bg) 92%)' }}
+              />
+            </div>
           </div>
 
           {/* Botón de reserva */}
