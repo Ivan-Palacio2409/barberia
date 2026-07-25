@@ -1,6 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import type { CitaCalendario } from '@/types'
 import { formatFechaLarga } from '@/lib/disponibilidad-utils'
 
@@ -11,6 +13,18 @@ import { formatFechaLarga } from '@/lib/disponibilidad-utils'
 // página completa de la cita. Todos los datos ya vienen en el
 // objeto `cita` que usa el propio calendario, así que no hace
 // falta una petición adicional al servidor.
+//
+// Fix: cada bloque de cita en la grilla (VistaDia/VistaSemana/
+// VistaMes) vive dentro de un contenedor "absolute z-10" — eso
+// crea su propio contexto de apilamiento. Como este modal antes
+// se renderizaba como hijo directo de ese mismo bloque, su
+// "z-50" solo se comparaba DENTRO de ese contexto local, no
+// contra el resto de la página: otra celda del calendario
+// (renderizada despues en el DOM, con su propio z-10) terminaba
+// pintandose por ENCIMA del modal aunque tuviera un z-index
+// mayor. Se soluciona con un portal a document.body para que el
+// modal quede fuera de cualquier contexto de apilamiento de la
+// grilla del calendario.
 // ============================================================
 
 interface Props {
@@ -36,7 +50,13 @@ export function ModalReciboCita({ cita, onClose }: Props) {
   const router = useRouter()
   const duracion = duracionMinutos(cita.hora_inicio, cita.hora_fin)
 
-  return (
+  // El portal solo puede montarse en el cliente, una vez que
+  // document existe (evita mismatches de hidratacion en SSR).
+  const [montado, setMontado] = useState(false)
+  useEffect(() => setMontado(true), [])
+  if (!montado) return null
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
       onClick={onClose}
@@ -106,7 +126,8 @@ export function ModalReciboCita({ cita, onClose }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

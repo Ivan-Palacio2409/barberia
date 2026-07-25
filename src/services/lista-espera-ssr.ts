@@ -15,6 +15,7 @@ export interface InscribirseInvitadoParams {
   telefono: string
   email?: string
   fecha_solicitada: string
+  hora_solicitada?: string
   servicios_deseados?: string
 }
 
@@ -66,6 +67,7 @@ export async function crearClienteEInscribirse(
   const { error } = await supabase.from('lista_espera').insert({
     cliente_id: clienteId,
     fecha_solicitada: params.fecha_solicitada,
+    hora_solicitada: params.hora_solicitada ?? null,
     servicios_deseados: params.servicios_deseados ?? null,
   })
 

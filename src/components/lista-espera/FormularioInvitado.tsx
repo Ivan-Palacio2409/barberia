@@ -119,6 +119,23 @@ export function FormularioInvitado({ onExito, serviciosOpciones }: FormularioInv
         />
       </div>
 
+      {/* Hora */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="hora-espera" className="text-sm font-medium text-[var(--pub-text)]">
+          Hora deseada <span aria-hidden="true" className="text-red-500">*</span>
+        </label>
+        <input
+          id="hora-espera"
+          name="hora_solicitada"
+          type="time"
+          required
+          min="07:00"
+          max="21:00"
+          step={900}
+          className={inputClass}
+        />
+      </div>
+
       {/* Servicios */}
       {serviciosOpciones.length > 0 && (
         <fieldset className="flex flex-col gap-2">

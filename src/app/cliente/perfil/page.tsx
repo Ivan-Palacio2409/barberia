@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { buscarPorAuthUserId } from '@/services/clientes'
 import { getCitasByCliente } from '@/services/citas'
@@ -60,13 +61,25 @@ function formatFecha(fecha: string) {
 }
 
 // ── Componente ───────────────────────────────────────────────
-export default function PerfilPage() {
+// Ajuste solicitado: cuando el cliente confirma "Sí asistí" en
+// Mis citas y responde "Sí" al aviso de reseña, se le redirige a
+// /cliente/perfil?tab=resenas para que caiga directo en esta
+// pestaña — useSearchParams exige un limite <Suspense>.
+function PerfilPageContent() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth()
+  const searchParams = useSearchParams()
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [citas, setCitas] = useState<Cita[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [tab, setTab] = useState<Tab>('perfil')
   const [profileKey, setProfileKey] = useState(0) // fuerza re-render del form tras guardar
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && TABS.some((t) => t.id === tabParam)) {
+      setTab(tabParam as Tab)
+    }
+  }, [searchParams])
 
   const cargarDatos = useCallback(async () => {
     if (!user) return
@@ -271,6 +284,14 @@ export default function PerfilPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PerfilPage() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <PerfilPageContent />
+    </Suspense>
   )
 }
 

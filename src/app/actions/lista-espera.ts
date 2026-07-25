@@ -39,11 +39,13 @@ export async function inscribirInvitadoAction(
   const telefono = (formData.get('telefono') as string | null)?.trim() ?? ''
   const email = (formData.get('email') as string | null)?.trim() || undefined
   const fecha_solicitada = (formData.get('fecha_solicitada') as string | null)?.trim() ?? ''
+  const hora_solicitada = (formData.get('hora_solicitada') as string | null)?.trim() || undefined
   const servicios_deseados = (formData.get('servicios_deseados') as string | null)?.trim() || undefined
 
   if (!nombre || nombre.length < 2) return { ok: false, error: 'El nombre es obligatorio.' }
   if (!telefono || telefono.length < 7) return { ok: false, error: 'El teléfono es obligatorio.' }
   if (!fecha_solicitada) return { ok: false, error: 'La fecha es obligatoria.' }
+  if (!hora_solicitada) return { ok: false, error: 'La hora es obligatoria.' }
 
   // No aceptar fechas pasadas
   const hoy = new Date()
@@ -57,6 +59,7 @@ export async function inscribirInvitadoAction(
     telefono,
     email,
     fecha_solicitada,
+    hora_solicitada,
     servicios_deseados,
   })
 }

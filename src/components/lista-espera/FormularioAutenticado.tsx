@@ -24,6 +24,7 @@ function fechaMaxima(): string {
 
 export function FormularioAutenticado({ cliente, serviciosOpciones, onExito }: FormularioAutenticadoProps) {
   const [fecha, setFecha] = useState('')
+  const [hora, setHora] = useState('')
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState<string[]>([])
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,12 +44,18 @@ export function FormularioAutenticado({ cliente, serviciosOpciones, onExito }: F
       return
     }
 
+    if (!hora) {
+      setError('Selecciona una hora.')
+      return
+    }
+
     setEnviando(true)
 
     try {
       await inscribirseListaEspera({
         cliente_id: cliente.id,
         fecha_solicitada: fecha,
+        hora_solicitada: hora,
         servicios_deseados: serviciosSeleccionados.join(', ') || undefined,
       })
       onExito()
@@ -95,6 +102,24 @@ export function FormularioAutenticado({ cliente, serviciosOpciones, onExito }: F
         />
       </div>
 
+      {/* Hora */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="hora-espera-auth" className="text-sm font-medium text-[var(--pub-text)]">
+          Hora deseada <span aria-hidden="true" className="text-red-500">*</span>
+        </label>
+        <input
+          id="hora-espera-auth"
+          type="time"
+          required
+          min="07:00"
+          max="21:00"
+          step={900}
+          value={hora}
+          onChange={(e) => setHora(e.target.value)}
+          className={inputClass}
+        />
+      </div>
+
       {/* Servicios */}
       {serviciosOpciones.length > 0 && (
         <fieldset className="flex flex-col gap-2">
@@ -136,7 +161,7 @@ export function FormularioAutenticado({ cliente, serviciosOpciones, onExito }: F
 
       <button
         type="submit"
-        disabled={enviando || !fecha}
+        disabled={enviando || !fecha || !hora}
         className="w-full py-3 rounded-lg text-sm font-semibold text-[var(--pub-on-gold)] transition-opacity disabled:opacity-50"
         style={{ background: 'var(--pub-gold)' }}
       >

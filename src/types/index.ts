@@ -133,6 +133,7 @@ export interface ListaEspera {
   id: string
   cliente_id: string
   fecha_solicitada: string
+  hora_solicitada?: string | null
   servicios_deseados?: string
   estado: EstadoListaEspera
   created_at: string

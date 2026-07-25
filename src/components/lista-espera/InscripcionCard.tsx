@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { ListaEspera } from '@/types'
 import { EstadoBadge } from './EstadoBadge'
 import { cancelarInscripcion } from '@/services/lista-espera'
+import { TIMEZONE_NEGOCIO } from '@/lib/date-utils'
 
 interface InscripcionCardProps {
   inscripcion: ListaEspera
@@ -16,6 +17,20 @@ function formatFecha(dateStr: string) {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: TIMEZONE_NEGOCIO,
+  })
+}
+
+// Hora guardada como "HH:MM:SS" (sin zona) — se formatea en UTC
+// puro para no aplicar ningún corrimiento de zona horaria, ya
+// que es simplemente la hora del reloj que pidió el cliente.
+function formatHora(hora: string) {
+  const [h, m] = hora.slice(0, 5).split(':').map(Number)
+  return new Date(Date.UTC(2000, 0, 1, h, m)).toLocaleTimeString('es-CO', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
   })
 }
 
@@ -39,6 +54,11 @@ export function InscripcionCard({ inscripcion, onCancelada }: InscripcionCardPro
         <div className="flex flex-col gap-1">
           <p className="font-semibold text-sm text-[var(--pub-text)]">
             {formatFecha(inscripcion.fecha_solicitada)}
+            {inscripcion.hora_solicitada && (
+              <span className="font-normal text-[var(--pub-text-muted)]">
+                {' '}· {formatHora(inscripcion.hora_solicitada)}
+              </span>
+            )}
           </p>
           <time
             dateTime={inscripcion.created_at}
@@ -49,6 +69,7 @@ export function InscripcionCard({ inscripcion, onCancelada }: InscripcionCardPro
               day: 'numeric',
               month: 'short',
               year: 'numeric',
+              timeZone: TIMEZONE_NEGOCIO,
             })}
           </time>
         </div>

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { cambiarEstadoListaEspera } from '@/services/lista-espera-admin'
+import { cambiarEstadoListaEspera, convertirListaEsperaEnCita } from '@/services/lista-espera-admin'
 
 // ============================================================
 // src/app/actions/lista-espera-admin.ts — Fase 23
@@ -34,10 +34,12 @@ export async function actionConvertirListaEspera(
   const adminId = await getAdminId()
   if (!adminId) return { error: 'No autenticado.' }
 
-  const result = await cambiarEstadoListaEspera(id, 'convertido', adminId)
+  const result = await convertirListaEsperaEnCita(id, adminId)
   if (!result.ok) return { error: result.error }
 
   revalidatePath('/admin/lista-espera')
+  revalidatePath('/admin/calendario')
+  revalidatePath('/admin/notificaciones')
   return {}
 }
 

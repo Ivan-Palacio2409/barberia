@@ -167,17 +167,24 @@ export function HeroSectionMobile() {
               }}
             />
 
-            {/* QA (jul 2026, revisión 2): la máscara CSS (mask-image) no se
-                estaba renderizando de forma confiable en todos los
-                navegadores/GPUs — el resultado era la foto como un
-                rectángulo duro sin fundirse con el fondo ("se ve como en
-                un cuadro"). Se reemplaza por: (1) un contenedor con
-                overflow-hidden y esquinas redondeadas en vez de la máscara
-                elíptica, y (2) una viñeta en primer plano que desvanece los
-                bordes de la foto hacia el color de fondo real de la
-                página. Esto funciona igual en cualquier navegador porque
-                usa gradientes normales, no mask-image. */}
-            <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
+            {/* QA (jul 2026, revisión 3): el contenedor con overflow-hidden
+                + esquinas redondeadas seguía leyéndose como "un cuadro"
+                porque el borde, aunque curvo, es una forma geométrica dura.
+                Se reemplaza por una máscara CSS (mask-image) con un
+                degradado radial: la foto se disuelve a transparencia total
+                de forma orgánica, sin ningún borde recto ni curvo, y lo que
+                se ve detrás es el fondo animado real de la sección (no un
+                parche de color sólido). Se define tanto `maskImage` como
+                `WebkitMaskImage` por compatibilidad. */}
+            <div
+              className="absolute inset-0"
+              style={{
+                maskImage:
+                  'radial-gradient(ellipse 58% 62% at 50% 40%, black 45%, rgba(0,0,0,0.7) 62%, transparent 88%)',
+                WebkitMaskImage:
+                  'radial-gradient(ellipse 58% 62% at 50% 40%, black 45%, rgba(0,0,0,0.7) 62%, transparent 88%)',
+              }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={BARBER_PHOTO_URL}
@@ -206,21 +213,6 @@ export function HeroSectionMobile() {
                   boxShadow: 'inset 0 0 40px 6px rgba(233,193,118,0.14)',
                   mixBlendMode: 'screen',
                 }}
-              />
-              {/* Viñeta: funde los bordes de la foto con el fondo real de
-                  la sección, para que no se note como un recorte cuadrado */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-px"
-                style={{
-                  background:
-                    'radial-gradient(ellipse 72% 80% at 50% 38%, transparent 48%, var(--pub-bg) 96%)',
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
-                style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--pub-bg) 92%)' }}
               />
             </div>
           </div>

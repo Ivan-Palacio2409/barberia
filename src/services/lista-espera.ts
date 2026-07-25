@@ -50,6 +50,7 @@ export async function getListaEsperaPorFecha(fecha: string): Promise<ListaEspera
 export interface InscribirseParams {
   cliente_id: string
   fecha_solicitada: string
+  hora_solicitada?: string
   servicios_deseados?: string
 }
 
@@ -63,6 +64,7 @@ export async function inscribirseListaEspera(
     .insert({
       cliente_id: params.cliente_id,
       fecha_solicitada: params.fecha_solicitada,
+      hora_solicitada: params.hora_solicitada ?? null,
       servicios_deseados: params.servicios_deseados ?? null,
     })
     .select()

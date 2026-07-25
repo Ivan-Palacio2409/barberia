@@ -1,21 +1,35 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { citaYaTieneResena } from '@/services/resenas'
 import { marcarAsistencia } from '@/services/citas'
-import { ModalResena } from './ModalResena'
 import type { CitaConServicios, EstadoCita } from '@/types'
 
 // ============================================================
 // CitaCard.tsx — Fase 26 (+ flujo de asistencia post-cita)
-// Agrega boton "Dejar resena" en citas completadas. El boton se
-// oculta automaticamente si la cita ya tiene resena. Cuando ya
-// paso la hora estimada de fin y aun no se confirmo asistencia,
-// muestra "¿Asististe?" en vez de Reagendar/Cancelar.
+// Ajuste solicitado: ya no se deja la reseña directamente en
+// "Mis citas". Cuando el cliente confirma "Sí asistí" (o al
+// recargar dentro de las 24 horas siguientes), aparece aca un
+// mensaje "¿Quieres dejar tu reseña?":
+//   - "Sí"  -> lo manda a Perfil > Mis reseñas, donde aparece el
+//              formulario de reseña para esta cita.
+//   - "No"  -> el mensaje desaparece (se recuerda en este
+//              dispositivo con localStorage, por cita).
+// Si no responde nada, el mensaje se mantiene 24 horas desde que
+// confirmo asistencia; pasado ese tiempo desaparece solo (y con
+// el la posibilidad de dejar la reseña, tanto aca como en el
+// perfil — ver DejarResenaCard.tsx en /cliente/perfil).
 // ============================================================
+
+const VEINTICUATRO_HORAS_MS = 24 * 60 * 60 * 1000
+
+function claveDescarte(citaId: string) {
+  return `resena_prompt_descartado:${citaId}`
+}
 
 const ESTADO_CONFIG: Record<
   EstadoCita,
@@ -89,7 +103,7 @@ function StarIcon({ filled }: { filled?: boolean }) {
 // ── Props ────────────────────────────────────────────────────
 interface CitaCardProps {
   cita: CitaConServicios
-  clienteId?: string          // Fase 26: necesario para el modal de resena
+  clienteId?: string          // necesario para confirmar asistencia
   onReagendar: (cita: CitaConServicios) => void
   onCancelar: (cita: CitaConServicios) => void
 }
@@ -115,9 +129,10 @@ function formatearPrecio(precio?: number): string {
 
 // ── Componente principal ─────────────────────────────────────
 export function CitaCard({ cita, clienteId, onReagendar, onCancelar }: CitaCardProps) {
+  const router = useRouter()
   const [expanded, setExpanded] = useState(false)
-  const [modalResenaAbierto, setModalResenaAbierto] = useState(false)
   const [yaReseno, setYaReseno] = useState<boolean | null>(null)
+  const [promptDescartado, setPromptDescartado] = useState(false)
 
   const config = ESTADO_CONFIG[cita.estado]
   const finPaso = new Date(`${cita.fecha}T${cita.hora_fin}`).getTime() < Date.now()
@@ -143,12 +158,37 @@ export function CitaCard({ cita, clienteId, onReagendar, onCancelar }: CitaCardP
     citaYaTieneResena(cita.id).then(setYaReseno)
   }, [cita.id, esCompletada])
 
-  const handleResenaExitosa = () => {
-    setModalResenaAbierto(false)
-    setYaReseno(true)
+  // Recordar si el cliente ya cerro el mensaje "¿Quieres dejar tu
+  // reseña?" en este dispositivo, para no volver a mostrarlo.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setPromptDescartado(window.localStorage.getItem(claveDescarte(cita.id)) === '1')
+  }, [cita.id])
+
+  function descartarPrompt() {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(claveDescarte(cita.id), '1')
+    }
+    setPromptDescartado(true)
   }
 
-  const mostrarBotonResena = esCompletada && clienteId && yaReseno === false
+  function irADejarResena() {
+    router.push('/cliente/perfil?tab=resenas')
+  }
+
+  // Ventana de 24 horas desde que se confirmo la asistencia —
+  // pasado ese tiempo, ya no se puede dejar reseña ni aca ni en
+  // el perfil (ver misma logica en DejarResenaCard.tsx).
+  const dentroVentanaResena = cita.asistencia_confirmada_at
+    ? Date.now() - new Date(cita.asistencia_confirmada_at).getTime() < VEINTICUATRO_HORAS_MS
+    : false
+
+  const mostrarPromptResena =
+    esCompletada &&
+    cita.asistio === true &&
+    yaReseno === false &&
+    dentroVentanaResena &&
+    !promptDescartado
 
   return (
     <>
@@ -237,15 +277,31 @@ export function CitaCard({ cita, clienteId, onReagendar, onCancelar }: CitaCardP
           {servicios.length <= 1 && <span />}
 
           <div className="flex items-center gap-2">
-            {/* Boton resena — solo citas completadas sin resena */}
-            {mostrarBotonResena && (
-              <button
-                onClick={() => setModalResenaAbierto(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted/40"
-              >
-                <StarIcon />
-                Dejar resena
-              </button>
+            {/* Prompt: ¿Quieres dejar tu reseña? — aparece justo
+               despues de confirmar asistencia, y se mantiene por
+               24 horas si no se responde. */}
+            {mostrarPromptResena && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs text-muted-foreground mr-0.5 hidden sm:inline">
+                  ¿Quieres dejar tu reseña?
+                </span>
+                <Button
+                  size="sm"
+                  onClick={irADejarResena}
+                  className="h-7 gap-1 text-xs bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <StarIcon />
+                  Sí
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={descartarPrompt}
+                  className="h-7 text-xs border-border/70 bg-card text-foreground hover:bg-muted/40"
+                >
+                  No
+                </Button>
+              </div>
             )}
 
             {/* Badge: ya reseno */}
@@ -309,16 +365,6 @@ export function CitaCard({ cita, clienteId, onReagendar, onCancelar }: CitaCardP
           </div>
         </div>
       </article>
-
-      {/* Modal resena */}
-      {modalResenaAbierto && clienteId && (
-        <ModalResena
-          cita={cita}
-          clienteId={clienteId}
-          onClose={() => setModalResenaAbierto(false)}
-          onSuccess={handleResenaExitosa}
-        />
-      )}
     </>
   )
 }

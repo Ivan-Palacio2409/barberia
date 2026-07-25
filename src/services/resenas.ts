@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import type { Resena } from '@/types'
+import type { Resena, CitaConServicios } from '@/types'
 import { logger } from '@/lib/logger'
 
 // ============================================================
@@ -140,6 +140,50 @@ export async function getResenasCliente(clienteId: string): Promise<Resena[]> {
   }
 
   return (data as unknown as ResenaConCitaRaw[]).map(normalizarResena)
+}
+
+// ============================================================
+// getCitasPendientesDeResena — Ajuste solicitado:
+// Devuelve las citas del cliente que ya se pueden reseñar desde
+// el perfil (Mis reseñas): completadas, con asistencia
+// confirmada (asistio = true) y dentro de las 24 horas
+// siguientes a esa confirmacion. Si ya paso ese plazo, o ya
+// tienen una reseña, no se incluyen — la ventana se cierra sola,
+// tanto aca como en el aviso de "Mis citas" (ver CitaCard.tsx).
+// ============================================================
+export async function getCitasPendientesDeResena(clienteId: string): Promise<CitaConServicios[]> {
+  const supabase = createClient()
+
+  const haceVeinticuatroHoras = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+  const { data, error } = await supabase
+    .from('citas')
+    .select(`
+      *,
+      cita_servicios ( id, servicio:servicios(*) )
+    `)
+    .eq('cliente_id', clienteId)
+    .eq('estado', 'completada')
+    .eq('asistio', true)
+    .gte('asistencia_confirmada_at', haceVeinticuatroHoras)
+    .order('asistencia_confirmada_at', { ascending: false })
+
+  if (error) {
+    logger.error('Error al obtener citas pendientes de reseña:', error.message)
+    return []
+  }
+
+  const citas = (data ?? []) as CitaConServicios[]
+  if (citas.length === 0) return []
+
+  // Descartar las que ya tienen una reseña
+  const { data: resenasExistentes } = await supabase
+    .from('resenas')
+    .select('cita_id')
+    .in('cita_id', citas.map((c) => c.id))
+
+  const idsConResena = new Set((resenasExistentes ?? []).map((r) => r.cita_id))
+  return citas.filter((c) => !idsConResena.has(c.id))
 }
 
 interface CrearResenaParams {

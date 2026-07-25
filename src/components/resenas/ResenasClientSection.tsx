@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import type { Resena } from '@/types'
 import { ResenaCard } from './ResenaCard'
-import { ResenaForm } from './ResenaForm'
 import { SugerenciaForm } from './SugerenciaForm'
 import { PromedioResenas } from './PromedioResenas'
 
@@ -14,6 +13,15 @@ interface ResenasClientSectionProps {
   clienteId: string | null
 }
 
+// ============================================================
+// ResenasClientSection.tsx
+// Ajuste solicitado: esta seccion publica ya NO permite dejar una
+// reseña aqui — ahora eso se hace desde "Mis citas" > "Mis reseñas"
+// en el perfil, justo despues de confirmar asistencia a la cita
+// (ver CitaCard.tsx y DejarResenaCard.tsx). Esta pagina solo debe
+// mostrar las reseñas que los clientes ya dejaron.
+// ============================================================
+
 const POR_PAGINA = 6
 
 export function ResenasClientSection({
@@ -22,21 +30,10 @@ export function ResenasClientSection({
   total: totalInicial,
   clienteId,
 }: ResenasClientSectionProps) {
-  const [resenas, setResenas] = useState<Resena[]>(resenasIniciales)
-  const [totalLocal, setTotalLocal] = useState(totalInicial)
-  const [promedioLocal, setPromedioLocal] = useState(promedio)
+  const [resenas] = useState<Resena[]>(resenasIniciales)
+  const [totalLocal] = useState(totalInicial)
+  const [promedioLocal] = useState(promedio)
   const [pagina, setPagina] = useState(1)
-  const [tab, setTab] = useState<'resenas' | 'sugerencia'>('resenas')
-
-  function agregarResena(nueva: Resena) {
-    const nuevasResenas = [nueva, ...resenas]
-    setResenas(nuevasResenas)
-    const nuevoTotal = totalLocal + 1
-    setTotalLocal(nuevoTotal)
-    // Recalcular promedio local
-    const suma = nuevasResenas.reduce((acc, r) => acc + r.puntuacion, 0)
-    setPromedioLocal(Math.round((suma / nuevoTotal) * 10) / 10)
-  }
 
   const visible = resenas.slice(0, pagina * POR_PAGINA)
   const hayMas = visible.length < resenas.length
@@ -48,47 +45,17 @@ export function ResenasClientSection({
         <PromedioResenas promedio={promedioLocal} total={totalLocal} />
       </div>
 
-      {/* Formularios — solo para clientes autenticados */}
-      {clienteId ? (
+      {/* Sugerencias — solo para clientes autenticados. Las reseñas
+         se dejan desde el perfil, no aqui. */}
+      {clienteId && (
         <div>
-          {/* Tabs */}
-          <div className="flex rounded-lg border border-[var(--pub-gold)]/30 overflow-hidden mb-6 bg-[var(--pub-surface)]">
-            {[
-              { key: 'resenas', label: 'Dejar reseña' },
-              { key: 'sugerencia', label: 'Enviar sugerencia' },
-            ].map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setTab(key as typeof tab)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  tab === key
-                    ? 'bg-[var(--pub-gold)] text-[var(--pub-on-gold)]'
-                    : 'text-[var(--pub-text-muted)] hover:bg-[var(--pub-bg)]'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {tab === 'resenas' ? (
-            <ResenaForm clienteId={clienteId} onCreada={agregarResena} />
-          ) : (
-            <SugerenciaForm clienteId={clienteId} />
-          )}
-        </div>
-      ) : (
-        <div className="bg-[var(--pub-bg)] rounded-xl border border-[var(--pub-gold)]/20 p-6 text-center">
-          <p className="text-sm text-[var(--pub-text-muted)] mb-3">
-            Inicia sesion para dejar una reseña o enviar una sugerencia.
-          </p>
-          <a
-            href="/login"
-            className="inline-block px-5 py-2.5 rounded-lg text-sm font-semibold text-[var(--pub-on-gold)] transition-opacity hover:opacity-90"
-            style={{ background: 'var(--pub-gold)' }}
+          <h2
+            className="text-sm font-semibold text-[var(--pub-text)] mb-3"
+            style={{ fontFamily: 'var(--font-display)' }}
           >
-            Iniciar sesion
-          </a>
+            Enviar sugerencia
+          </h2>
+          <SugerenciaForm clienteId={clienteId} />
         </div>
       )}
 

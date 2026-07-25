@@ -1,13 +1,22 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getResenasCliente } from '@/services/resenas'
-import type { Resena } from '@/types'
+import { getResenasCliente, getCitasPendientesDeResena } from '@/services/resenas'
+import { DejarResenaCard } from './DejarResenaCard'
+import type { Resena, CitaConServicios } from '@/types'
 
 // ============================================================
 // MisResenas.tsx — Fase 26
 // Tab en el perfil del cliente que muestra las resenas enviadas,
 // con puntuacion en estrellas y fecha.
+//
+// Ajuste solicitado: ademas de la lista, ahora tambien muestra
+// (arriba de todo) la tarjeta "Deja tu reseña" para cualquier
+// cita completada que el cliente confirmo como asistida y que
+// aun este dentro de las 24 horas siguientes a esa confirmacion
+// — ver DejarResenaCard.tsx y getCitasPendientesDeResena(). Esto
+// aplica tanto si llega aca desde el aviso de "Mis citas" como si
+// entra directo al perfil.
 // ============================================================
 
 interface MisResenasProps {
@@ -51,13 +60,26 @@ function Estrellas({ puntuacion }: { puntuacion: number }) {
 
 export function MisResenas({ clienteId }: MisResenasProps) {
   const [resenas, setResenas] = useState<Resena[]>([])
+  const [pendientes, setPendientes] = useState<CitaConServicios[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getResenasCliente(clienteId)
-      .then(setResenas)
+    Promise.all([
+      getResenasCliente(clienteId),
+      getCitasPendientesDeResena(clienteId),
+    ])
+      .then(([r, p]) => {
+        setResenas(r)
+        setPendientes(p)
+      })
       .finally(() => setLoading(false))
   }, [clienteId])
+
+  function handleResenaEnviada(citaId: string) {
+    setPendientes((prev) => prev.filter((c) => c.id !== citaId))
+    // Recargar la lista para incluir la reseña recién publicada
+    getResenasCliente(clienteId).then(setResenas)
+  }
 
   if (loading) {
     return (
@@ -75,7 +97,7 @@ export function MisResenas({ clienteId }: MisResenasProps) {
     )
   }
 
-  if (resenas.length === 0) {
+  if (resenas.length === 0 && pendientes.length === 0) {
     return (
       <div
         className="flex flex-col items-center gap-4 rounded-2xl border border-dashed px-6 py-14 text-center"
@@ -99,6 +121,17 @@ export function MisResenas({ clienteId }: MisResenasProps) {
 
   return (
     <div className="space-y-3">
+      {/* Citas pendientes de reseña — dentro de las 24h posteriores
+         a confirmar asistencia */}
+      {pendientes.map((cita) => (
+        <DejarResenaCard
+          key={cita.id}
+          cita={cita}
+          clienteId={clienteId}
+          onEnviada={handleResenaEnviada}
+        />
+      ))}
+
       {resenas.map(r => (
         <article
           key={r.id}
