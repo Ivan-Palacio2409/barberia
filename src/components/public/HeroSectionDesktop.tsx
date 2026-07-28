@@ -138,7 +138,7 @@ export function HeroSectionDesktop() {
             <p
               ref={wordmarkRef}
               aria-hidden="true"
-              className="font-display select-none leading-[0.82] tracking-tight text-center text-[clamp(6rem,17vw,20rem)] will-change-transform"
+              className="font-display select-none leading-[0.82] tracking-tight text-center text-[clamp(5.4rem,15.3vw,18rem)] will-change-transform"
               style={{
                 color: 'var(--pub-gold-strong)',
                 fontWeight: 700,

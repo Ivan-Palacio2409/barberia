@@ -167,6 +167,42 @@
     background-color: hsl(0 0% 100% / 0.1);
   }
 
+  /* ────────────────────────────────────────────────────────────
+     Icono nativo de <input type="date"> / type="time"> dentro del
+     SITIO PÚBLICO (formularios de lista de espera, reserva, etc,
+     dentro de .pub-grain). Por defecto el navegador dibuja el
+     icono del calendario/reloj en negro, ilegible sobre el fondo
+     oscuro "Aureum & Onyx" y sin relación con el color del texto
+     del input. Se invierte y se tiñe para que quede del mismo
+     tono cálido que los números (--pub-text-muted), igual que ya
+     se hace en .admin-theme más arriba.
+     ──────────────────────────────────────────────────────────── */
+  .pub-grain input[type='date'],
+  .pub-grain input[type='time'],
+  .pub-grain input[type='datetime-local'] {
+    color-scheme: dark;
+  }
+
+  .pub-grain input[type='date']::-webkit-calendar-picker-indicator,
+  .pub-grain input[type='time']::-webkit-calendar-picker-indicator,
+  .pub-grain input[type='datetime-local']::-webkit-calendar-picker-indicator {
+    /* invert(1) pasa el icono nativo (negro) a blanco/gris claro,
+       el mismo tono que --pub-text (#e2e2e2) usado en los números
+       del input, así el icono deja de leerse como un elemento
+       ajeno al campo. */
+    filter: invert(1) brightness(1.15);
+    opacity: 0.9;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+  }
+
+  .pub-grain input[type='date']::-webkit-calendar-picker-indicator:hover,
+  .pub-grain input[type='time']::-webkit-calendar-picker-indicator:hover,
+  .pub-grain input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+    background-color: rgba(233, 193, 118, 0.12);
+  }
+
   /* ════════════════════════════════════════════════════════════
      TEMA OSCURO DEL PERFIL DE CLIENTE — a pedido, solo la página
      /cliente/perfil pasa a fondo negro. No toca font-family ni
@@ -251,12 +287,24 @@
 
   * { @apply border-border; }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* QA (jul 2026): el truco `w-screen` + `margin-left: calc(50% - 50vw)`
+       del wordmark del hero móvil (HeroSectionMobile.tsx) rompe el ancho
+       real del viewport en algunos navegadores móviles (100vw incluye el
+       scrollbar / difiere del viewport visible), dejando la página con
+       overflow horizontal: se puede arrastrar hacia la derecha y queda un
+       espacio en blanco donde no hay ningún elemento pintado. Se bloquea
+       el scroll horizontal a nivel global como red de seguridad, sin
+       afectar el scroll vertical normal. */
+    overflow-x: hidden;
+  }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-size: 16px;
     line-height: 1.5;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4 { @apply font-display; }

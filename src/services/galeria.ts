@@ -22,6 +22,7 @@ export async function getCatalogoConCategorias(): Promise<CatalogoResult> {
     supabase
       .from('catalogo_estilos')
       .select('*, categoria:categorias_servicio(id, nombre)')
+      .order('destacado', { ascending: false })
       .order('created_at', { ascending: false }),
     supabase
       .from('categorias_servicio')

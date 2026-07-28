@@ -151,7 +151,7 @@ export function HeroSectionMobile() {
           {/* Retrato del barbero, superpuesto sobre el wordmark */}
           <div
             ref={photoRef}
-            className="relative mx-auto -mt-[9vw] w-[64%] max-w-[260px] shrink-0 will-change-transform"
+            className="relative mx-auto -mt-[9vw] w-[74%] max-w-[300px] shrink-0 will-change-transform"
             style={{ aspectRatio: '3 / 4.3' }}
           >
             {/* QA (jul 2026): resplandor de estudio detrás del retrato —
@@ -188,7 +188,7 @@ export function HeroSectionMobile() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={BARBER_PHOTO_URL}
-                alt="Barbero de BARBERÍA posando en el estudio"
+                alt="Barbero posando en el estudio"
                 className="absolute inset-0 h-full w-full object-cover"
                 style={{
                   filter: 'grayscale(0.18) contrast(1.18) saturate(1.15) brightness(0.98)',
