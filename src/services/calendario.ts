@@ -95,10 +95,14 @@ export async function crearCitaManual(input: NuevaCitaManualInput): Promise<stri
   const supabase = await createClient()
 
   // Calcular duracion total sumando servicios seleccionados
-  const { data: serviciosData } = await supabase
+  const { data: serviciosData, error: errServicios } = await supabase
     .from('servicios')
     .select('duracion_minutos, precio')
     .in('id', input.servicio_ids)
+
+  if (errServicios) {
+    throw new Error(errServicios.message)
+  }
 
   const duracionTotal = (serviciosData ?? []).reduce(
     (acc, s) => acc + (s.duracion_minutos ?? 0),
@@ -117,12 +121,16 @@ export async function crearCitaManual(input: NuevaCitaManualInput): Promise<stri
   const horaInicioFmt = `${input.hora_inicio}:00`
 
   // Verificar solapamiento via RPC (el trigger de BD tambien lo rechaza)
-  const { data: solapadas } = await supabase
+  const { data: solapadas, error: errSolapadas } = await supabase
     .from('citas')
     .select('id')
     .eq('fecha', input.fecha)
     .neq('estado', 'cancelada')
     .or(`hora_inicio.lt.${horaFin},hora_fin.gt.${horaInicioFmt}`)
+
+  if (errSolapadas) {
+    throw new Error(errSolapadas.message)
+  }
 
   if (solapadas && solapadas.length > 0) {
     throw new Error('Ya existe una cita en ese horario. Por favor elige otro.')

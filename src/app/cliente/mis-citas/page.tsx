@@ -9,6 +9,7 @@ import { ModalReagendar } from '@/components/mis-citas/ModalReagendar'
 import { ModalCancelar } from '@/components/mis-citas/ModalCancelar'
 import { PageLoader } from '@/components/shared/LoadingSpinner'
 import { useMisCitasRealtime } from '@/hooks/useMisCitasRealtime'
+import { hoyISO } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { CitaConServicios } from '@/types'
@@ -134,7 +135,7 @@ export default function MisCitasPage() {
   })
 
   // ── Filtrar citas por tab ────────────────────────────────────
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyISO()
 
   const citasProximas = citas.filter(
     (c) => c.fecha >= hoy && (c.estado === 'pendiente' || c.estado === 'confirmada')

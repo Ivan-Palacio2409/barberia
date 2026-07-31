@@ -9,6 +9,7 @@
 // ============================================================
 
 import { createClient as createServerClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export interface InscribirseInvitadoParams {
   nombre: string
@@ -28,20 +29,26 @@ export async function crearClienteEInscribirse(
   let clienteId: string | null = null
 
   if (params.email) {
-    const { data } = await supabase
+    const { data, error: errBusquedaEmail } = await supabase
       .from('clientes')
       .select('id')
       .eq('email', params.email)
       .maybeSingle()
+    if (errBusquedaEmail) {
+      logger.error('Error al buscar cliente por email:', errBusquedaEmail.message)
+    }
     clienteId = data?.id ?? null
   }
 
   if (!clienteId) {
-    const { data } = await supabase
+    const { data, error: errBusquedaTelefono } = await supabase
       .from('clientes')
       .select('id')
       .eq('telefono', params.telefono)
       .maybeSingle()
+    if (errBusquedaTelefono) {
+      logger.error('Error al buscar cliente por teléfono:', errBusquedaTelefono.message)
+    }
     clienteId = data?.id ?? null
   }
 

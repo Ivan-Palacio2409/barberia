@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
 import { useEffect, useState } from 'react'
 import type { CitaCalendario } from '@/types'
@@ -47,7 +46,6 @@ function duracionMinutos(inicio: string, fin: string): number {
 }
 
 export function ModalReciboCita({ cita, onClose }: Props) {
-  const router = useRouter()
   const duracion = duracionMinutos(cita.hora_inicio, cita.hora_fin)
 
   // El portal solo puede montarse en el cliente, una vez que

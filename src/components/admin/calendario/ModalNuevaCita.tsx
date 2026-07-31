@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { actionCrearCitaManual } from '@/app/actions/admin-calendario'
+import { hoyISO } from '@/lib/date-utils'
 import type { Cliente, Servicio } from '@/types'
 
 // ============================================================
@@ -20,7 +21,7 @@ export function ModalNuevaCita({ slotInicial, onCreada, onCerrar }: Props) {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [clienteId, setClienteId] = useState('')
-  const [fecha, setFecha] = useState(slotInicial?.fecha ?? new Date().toISOString().slice(0, 10))
+  const [fecha, setFecha] = useState(slotInicial?.fecha ?? hoyISO())
   const [hora, setHora] = useState(slotInicial?.hora ?? '09:00')
   const [servicioIds, setServicioIds] = useState<string[]>([])
   const [notas, setNotas] = useState('')

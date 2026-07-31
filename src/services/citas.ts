@@ -67,59 +67,6 @@ export async function getCitaById(id: string): Promise<Cita | null> {
   return data as unknown as Cita
 }
 
-interface CrearCitaParams {
-  cliente_id: string
-  fecha: string
-  hora_inicio: string
-  hora_fin: string
-  servicios_ids: string[]
-  precio_total?: number
-  notas?: string
-}
-
-// Crea la cita y, en la misma operación, sus filas en la tabla
-// puente cita_servicios. Si el trigger anti-solapamiento rechaza
-// la cita (horario ocupado), la función propaga el error tal cual
-// para que la UI muestre el mensaje "Ya existe una cita en ese horario".
-export async function crearCita({
-  cliente_id,
-  fecha,
-  hora_inicio,
-  hora_fin,
-  servicios_ids,
-  precio_total,
-  notas,
-}: CrearCitaParams): Promise<Cita | null> {
-  const supabase = createClient()
-
-  const { data: cita, error: errorCita } = await supabase
-    .from('citas')
-    .insert({ cliente_id, fecha, hora_inicio, hora_fin, precio_total, notas, estado: 'confirmada' })
-    .select()
-    .single()
-
-  if (errorCita) {
-    logger.error('Error al crear la cita:', errorCita.message)
-    throw errorCita
-  }
-
-  const filasServicios = servicios_ids.map((servicio_id) => ({
-    cita_id: cita.id,
-    servicio_id,
-  }))
-
-  const { error: errorServicios } = await supabase
-    .from('cita_servicios')
-    .insert(filasServicios)
-
-  if (errorServicios) {
-    logger.error('Error al asociar servicios a la cita:', errorServicios.message)
-    throw errorServicios
-  }
-
-  return getCitaById(cita.id)
-}
-
 export async function actualizarEstadoCita(
   id: string,
   estado: EstadoCita

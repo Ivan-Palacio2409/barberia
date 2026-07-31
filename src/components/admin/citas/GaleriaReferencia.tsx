@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { BUCKETS } from '@/lib/supabase/storage'
 import type { EstiloReferencia } from '@/types'
 
 // ============================================================
@@ -34,7 +35,7 @@ export function GaleriaReferencia({ estilos }: Props) {
           return
         }
         const { data } = await supabase.storage
-          .from('estilos-referencia')
+          .from(BUCKETS.ESTILOS_REFERENCIA)
           .createSignedUrl(d.url_imagen, 3600)
         if (data?.signedUrl) mapeadas[d.id] = data.signedUrl
       })

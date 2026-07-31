@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { reprogramarCita } from '@/services/citas'
+import { hoyISO } from '@/lib/date-utils'
 import type { Cita } from '@/types'
 
 // ============================================================
@@ -91,7 +92,7 @@ export function ModalReagendar({ cita, onClose, onGuardado }: Props) {
               type="date"
               value={fecha}
               onChange={(e) => { setFecha(e.target.value); setError('') }}
-              min={new Date().toISOString().slice(0, 10)}
+              min={hoyISO()}
               className="w-full text-sm border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>

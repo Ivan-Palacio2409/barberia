@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { inscribirInvitadoAction } from '@/app/actions/lista-espera'
+import { hoyISO, sumarDias, sumarMeses } from '@/lib/date-utils'
 
 interface FormularioInvitadoProps {
   onExito: () => void
@@ -10,16 +11,12 @@ interface FormularioInvitadoProps {
 
 // Fecha mínima: mañana
 function fechaMinima(): string {
-  const d = new Date()
-  d.setDate(d.getDate() + 1)
-  return d.toISOString().split('T')[0]
+  return sumarDias(hoyISO(), 1)
 }
 
 // Fecha máxima: 3 meses adelante
 function fechaMaxima(): string {
-  const d = new Date()
-  d.setMonth(d.getMonth() + 3)
-  return d.toISOString().split('T')[0]
+  return sumarMeses(hoyISO(), 3)
 }
 
 export function FormularioInvitado({ onExito, serviciosOpciones }: FormularioInvitadoProps) {

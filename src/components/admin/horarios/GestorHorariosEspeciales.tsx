@@ -8,6 +8,7 @@ import {
 } from '@/services/horarios'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // GestorHorariosEspeciales — Fase 21
@@ -24,7 +25,7 @@ const HORA_DEFAULT_INICIO = '08:00'
 const HORA_DEFAULT_FIN    = '18:00'
 
 export function GestorHorariosEspeciales({ horariosEspeciales, onActualizado }: Props) {
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = hoyISO()
 
   const [fecha,       setFecha]       = useState('')
   const [horaInicio,  setHoraInicio]  = useState(HORA_DEFAULT_INICIO)
@@ -112,7 +113,7 @@ export function GestorHorariosEspeciales({ horariosEspeciales, onActualizado }: 
           No hay horarios especiales configurados
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">

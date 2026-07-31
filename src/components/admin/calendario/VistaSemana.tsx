@@ -1,6 +1,7 @@
 'use client'
 
 import type { CitaCalendario } from '@/types'
+import { hoyISO } from '@/lib/date-utils'
 import { CitaBloque } from './CitaBloque'
 
 // ============================================================
@@ -56,7 +57,7 @@ interface Props {
 export function VistaSemana({ fechaRef, citas, onSlotClick }: Props) {
   const dias = diasSemana(fechaRef)
   const totalH = (HORA_FIN - HORA_INICIO + 1) * SLOT_H
-  const hoy = new Date().toISOString().slice(0, 10)
+  const hoy = hoyISO()
 
   return (
     <div className="overflow-x-auto">

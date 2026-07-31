@@ -43,3 +43,37 @@ export function hoyLegible(opciones: Intl.DateTimeFormatOptions = {}): string {
     timeZone: TIMEZONE_NEGOCIO,
   })
 }
+
+// ============================================================
+// Aritmética de fechas sin "cálculos sueltos".
+//
+// Patrón detectado en auditoría (jul 2026): varios componentes
+// hacían `const d = new Date(); d.setDate(d.getDate() + n);
+// d.toISOString().slice(0, 10)` para calcular "dentro de N días".
+// Eso mezcla la hora actual (con minutos/segundos) con una
+// conversión a UTC: si son, por ejemplo, las 8:00 p.m. hora
+// Bogota (ya es el día siguiente en UTC), el resultado queda
+// corrido un día extra respecto de lo esperado.
+//
+// Estas dos funciones operan solo sobre el componente de fecha
+// (YYYY-MM-DD), con aritmética en UTC puro (Date.UTC +
+// setUTCDate/setUTCMonth), sin ninguna dependencia de la hora del
+// dia ni de la zona horaria del entorno donde corran. Siempre se
+// les debe pasar una fecha ya anclada a Bogota (ej. hoyISO()).
+// ============================================================
+
+/** Suma (o resta, si es negativo) `dias` a una fecha YYYY-MM-DD, sin depender de la hora ni de la zona horaria del runtime. */
+export function sumarDias(fechaISO: string, dias: number): string {
+  const [y, m, d] = fechaISO.split('-').map(Number)
+  const fecha = new Date(Date.UTC(y, m - 1, d))
+  fecha.setUTCDate(fecha.getUTCDate() + dias)
+  return fecha.toISOString().slice(0, 10)
+}
+
+/** Suma (o resta, si es negativo) `meses` a una fecha YYYY-MM-DD, sin depender de la hora ni de la zona horaria del runtime. */
+export function sumarMeses(fechaISO: string, meses: number): string {
+  const [y, m, d] = fechaISO.split('-').map(Number)
+  const fecha = new Date(Date.UTC(y, m - 1, d))
+  fecha.setUTCMonth(fecha.getUTCMonth() + meses)
+  return fecha.toISOString().slice(0, 10)
+}

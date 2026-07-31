@@ -132,22 +132,30 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
   const hoyStr = toDateStr(hoy)
 
   // ── Citas del mes actual (para ingresos, tasas, estados) ────
-  const { data: citasMes } = await supabase
+  const { data: citasMes, error: errCitasMes } = await supabase
     .from('citas')
     .select('estado, precio_total')
     .gte('fecha', mesActualStr)
     .lte('fecha', hoyStr)
+
+  if (errCitasMes) {
+    logger.error('[getReporteResumen] citas del mes:', errCitasMes.message)
+  }
 
   const rows = (citasMes ?? []) as CitaRow[]
   const ingresos_mes_actual = rows
     .filter((c) => c.estado === 'completada')
     .reduce((acc, c) => acc + Number(c.precio_total ?? 0), 0)
 
-  const { data: citasMesAnterior } = await supabase
+  const { data: citasMesAnterior, error: errCitasMesAnterior } = await supabase
     .from('citas')
     .select('estado, precio_total')
     .gte('fecha', mesAnteriorStr)
     .lte('fecha', finMesAnteriorStr)
+
+  if (errCitasMesAnterior) {
+    logger.error('[getReporteResumen] citas del mes anterior:', errCitasMesAnterior.message)
+  }
 
   const ingresos_mes_anterior = ((citasMesAnterior ?? []) as CitaRow[])
     .filter((c) => c.estado === 'completada')
@@ -173,14 +181,22 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
     ? Math.round(ingresos_mes_actual / citas_completadas_mes)
     : 0
 
-  const { count: clientes_nuevos_mes } = await supabase
+  const { count: clientes_nuevos_mes, error: errClientesNuevosMes } = await supabase
     .from('clientes')
     .select('id', { count: 'exact', head: true })
     .gte('created_at', `${mesActualStr}T00:00:00`)
 
-  const { data: resenas } = await supabase
+  if (errClientesNuevosMes) {
+    logger.error('[getReporteResumen] clientes nuevos:', errClientesNuevosMes.message)
+  }
+
+  const { data: resenas, error: errResenas } = await supabase
     .from('resenas')
     .select('puntuacion')
+
+  if (errResenas) {
+    logger.error('[getReporteResumen] reseñas:', errResenas.message)
+  }
 
   const total_resenas = resenas?.length ?? 0
   const promedio_resenas = total_resenas > 0
@@ -188,11 +204,15 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
     : 0
 
   // ── Serie diaria (últimos 30 días) para la gráfica de área ──
-  const { data: citas30 } = await supabase
+  const { data: citas30, error: errCitas30 } = await supabase
     .from('citas')
     .select('fecha, estado, precio_total')
     .gte('fecha', hace30DiasStr)
     .lte('fecha', hoyStr)
+
+  if (errCitas30) {
+    logger.error('[getReporteResumen] serie 30 días:', errCitas30.message)
+  }
 
   const serie_diaria = buildSerieDiaria((citas30 ?? []) as CitaRow[], hace30Dias, hoy)
 
@@ -204,7 +224,7 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
     .sort((a, b) => b.total - a.total)
 
   // ── Top 5 servicios del mes ──────────────────────────────────
-  const { data: topRaw } = await supabase
+  const { data: topRaw, error: errTopMes } = await supabase
     .from('cita_servicios')
     .select(`
       servicios ( nombre, precio ),
@@ -212,6 +232,10 @@ export async function getReporteResumen(): Promise<ReporteResumen> {
     `)
     .gte('citas.fecha', mesActualStr)
     .eq('citas.estado', 'completada')
+
+  if (errTopMes) {
+    logger.error('[getReporteResumen] top servicios:', errTopMes.message)
+  }
 
   const servicioMap: Record<string, { cantidad: number; ingresos: number }> = {}
   ;(topRaw ?? []).forEach((r: { servicios: { nombre: string; precio: number }[] }) => {
@@ -290,7 +314,7 @@ async function getReporteConFiltrosInterno(
 ): Promise<ReporteFiltrado> {
   const supabase = await createClient()
 
-  const { data: citasRaw } = await supabase
+  const { data: citasRaw, error: errCitas } = await supabase
     .from('citas')
     .select(`
       fecha, hora_inicio, estado, precio_total,
@@ -300,6 +324,10 @@ async function getReporteConFiltrosInterno(
     .gte('fecha', desde)
     .lte('fecha', hasta)
     .order('fecha', { ascending: false })
+
+  if (errCitas) {
+    throw new Error(errCitas.message)
+  }
 
   interface RawRow {
     fecha: string
@@ -327,11 +355,15 @@ async function getReporteConFiltrosInterno(
     ? Math.round(ingresos_periodo / citas_completadas)
     : 0
 
-  const { count: clientes_nuevos } = await supabase
+  const { count: clientes_nuevos, error: errClientesNuevos } = await supabase
     .from('clientes')
     .select('id', { count: 'exact', head: true })
     .gte('created_at', `${desde}T00:00:00`)
     .lte('created_at', `${hasta}T23:59:59`)
+
+  if (errClientesNuevos) {
+    throw new Error(errClientesNuevos.message)
+  }
 
   const serie_diaria = buildSerieDiaria(
     rows.map((r) => ({ fecha: r.fecha, estado: r.estado, precio_total: r.precio_total })),
@@ -339,7 +371,7 @@ async function getReporteConFiltrosInterno(
     new Date(hasta + 'T12:00:00'),
   )
 
-  const { data: topRaw } = await supabase
+  const { data: topRaw, error: errTop } = await supabase
     .from('cita_servicios')
     .select(`
       servicios ( nombre, precio ),
@@ -348,6 +380,10 @@ async function getReporteConFiltrosInterno(
     .gte('citas.fecha', desde)
     .lte('citas.fecha', hasta)
     .eq('citas.estado', 'completada')
+
+  if (errTop) {
+    throw new Error(errTop.message)
+  }
 
   const servicioMap: Record<string, { cantidad: number; ingresos: number }> = {}
   ;(topRaw ?? []).forEach((r: { servicios: { nombre: string; precio: number }[] }) => {
@@ -408,7 +444,7 @@ async function getReportePorServicioInterno(
 ): Promise<ServicioRendimiento[]> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('cita_servicios')
     .select(`
       servicios (
@@ -419,6 +455,10 @@ async function getReportePorServicioInterno(
     `)
     .gte('citas.fecha', desde)
     .lte('citas.fecha', hasta)
+
+  if (error) {
+    throw new Error(error.message)
+  }
 
   const mapa: Record<string, ServicioRendimiento> = {}
 

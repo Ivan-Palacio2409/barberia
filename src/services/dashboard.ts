@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { DashboardStats, CitaDashboard, TopServicio } from '@/types'
 import { hoyDate, horaActualISO } from '@/lib/date-utils'
+import { logger } from '@/lib/logger'
 
 // ============================================================
 // src/services/dashboard.ts — Fase 17 (rehecho: sin pagos)
@@ -42,7 +43,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const inicioMesStr = toDateStr(inicioMes)
 
   // ── Citas del día ─────────────────────────────────────────
-  const { data: citasRaw } = await supabase
+  const { data: citasRaw, error: errCitasHoy } = await supabase
     .from('citas')
     .select(`
       id,
@@ -58,6 +59,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .eq('fecha', hoyStr)
     .neq('estado', 'cancelada')
     .order('hora_inicio', { ascending: true })
+
+  if (errCitasHoy) {
+    logger.error('[getDashboardStats] citas de hoy:', errCitasHoy.message)
+  }
 
   interface RawCitaHoyRow {
     id: string
@@ -89,27 +94,39 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     ) ?? null
 
   // ── Conteo de citas semana / mes ──────────────────────────
-  const { count: citas_semana_count } = await supabase
+  const { count: citas_semana_count, error: errSemana } = await supabase
     .from('citas')
     .select('id', { count: 'exact', head: true })
     .neq('estado', 'cancelada')
     .gte('fecha', inicioSemanaStr)
     .lte('fecha', hoyStr)
 
-  const { count: citas_mes_count } = await supabase
+  if (errSemana) {
+    logger.error('[getDashboardStats] citas de la semana:', errSemana.message)
+  }
+
+  const { count: citas_mes_count, error: errMes } = await supabase
     .from('citas')
     .select('id', { count: 'exact', head: true })
     .neq('estado', 'cancelada')
     .gte('fecha', inicioMesStr)
     .lte('fecha', hoyStr)
 
+  if (errMes) {
+    logger.error('[getDashboardStats] citas del mes:', errMes.message)
+  }
+
   // ── Tasa de asistencia del mes (completadas vs completadas+no_asistio) ──
-  const { data: asistenciaMes } = await supabase
+  const { data: asistenciaMes, error: errAsistencia } = await supabase
     .from('citas')
     .select('estado')
     .in('estado', ['completada', 'no_asistio'])
     .gte('fecha', inicioMesStr)
     .lte('fecha', hoyStr)
+
+  if (errAsistencia) {
+    logger.error('[getDashboardStats] tasa de asistencia:', errAsistencia.message)
+  }
 
   const totalConAsistenciaConocida = (asistenciaMes ?? []).length
   const totalAsistio = (asistenciaMes ?? []).filter((c) => c.estado === 'completada').length
@@ -118,7 +135,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     : 100
 
   // ── Top 3 servicios del mes ──────────────────────────────
-  const { data: topRaw } = await supabase
+  const { data: topRaw, error: errTop } = await supabase
     .from('cita_servicios')
     .select(`
       servicios ( nombre ),
@@ -126,6 +143,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     `)
     .gte('citas.fecha', inicioMesStr)
     .eq('citas.estado', 'completada')
+
+  if (errTop) {
+    logger.error('[getDashboardStats] top servicios:', errTop.message)
+  }
 
   const counts: Record<string, number> = {}
   ;(topRaw ?? []).forEach((r: { servicios: { nombre: string } | { nombre: string }[] | null }) => {
@@ -139,23 +160,35 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .map(([nombre, cantidad]) => ({ nombre, cantidad }))
 
   // ── Clientes nuevos del mes ──────────────────────────────
-  const { count: clientes_nuevos_mes } = await supabase
+  const { count: clientes_nuevos_mes, error: errClientesNuevos } = await supabase
     .from('clientes')
     .select('id', { count: 'exact', head: true })
     .gte('created_at', `${inicioMesStr}T00:00:00`)
 
+  if (errClientesNuevos) {
+    logger.error('[getDashboardStats] clientes nuevos del mes:', errClientesNuevos.message)
+  }
+
   // ── Cancelaciones / inasistencias últimos 7 días ─────────
-  const { count: cancelaciones_semana } = await supabase
+  const { count: cancelaciones_semana, error: errCancelaciones } = await supabase
     .from('citas')
     .select('id', { count: 'exact', head: true })
     .eq('estado', 'cancelada')
     .gte('fecha', inicioSemanaStr)
 
-  const { count: no_asistio_semana } = await supabase
+  if (errCancelaciones) {
+    logger.error('[getDashboardStats] cancelaciones de la semana:', errCancelaciones.message)
+  }
+
+  const { count: no_asistio_semana, error: errNoAsistio } = await supabase
     .from('citas')
     .select('id', { count: 'exact', head: true })
     .eq('estado', 'no_asistio')
     .gte('fecha', inicioSemanaStr)
+
+  if (errNoAsistio) {
+    logger.error('[getDashboardStats] inasistencias de la semana:', errNoAsistio.message)
+  }
 
   return {
     citas_hoy_count: citas_hoy.length,

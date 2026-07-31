@@ -5,6 +5,7 @@ import type { DiaBloqueado } from '@/types'
 import { bloquearFecha, desbloquearFecha } from '@/services/horarios'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { hoyISO, hoyDate } from '@/lib/date-utils'
 
 // ============================================================
 // GestorDiasBloqueados — rediseño
@@ -40,10 +41,12 @@ function toISODate(y: number, m: number, d: number) {
 }
 
 export function GestorDiasBloqueados({ dias, onActualizado }: Props) {
-  const hoy = new Date().toISOString().split('T')[0]
-  const hoyDate = new Date()
+  const hoy = hoyISO()
 
-  const [mesRef, setMesRef] = useState(() => new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1))
+  const [mesRef, setMesRef] = useState(() => {
+    const d = hoyDate()
+    return new Date(d.getFullYear(), d.getMonth(), 1)
+  })
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null)
   const [motivo, setMotivo] = useState('')
   const [guardando, setGuardando] = useState(false)

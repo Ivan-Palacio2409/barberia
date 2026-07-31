@@ -88,12 +88,16 @@ export async function tienesCitasFuturas(servicioId: string): Promise<boolean> {
 
   const hoy = hoyISO()
 
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from('cita_servicios')
     .select('id', { count: 'exact', head: true })
     .eq('servicio_id', servicioId)
     .filter('cita.fecha', 'gte', hoy)
     .filter('cita.estado', 'in', '("pendiente","confirmada")')
+
+  if (error) {
+    logger.error('Error al verificar citas futuras del servicio:', error.message)
+  }
 
   return (count ?? 0) > 0
 }
@@ -102,10 +106,14 @@ export async function eliminarServicio(id: string): Promise<{ ok: boolean; mensa
   const supabase = createClientClient()
 
   // Verificar citas futuras antes de eliminar
-  const { count } = await supabase
+  const { count, error: errConteo } = await supabase
     .from('cita_servicios')
     .select('id', { count: 'exact', head: true })
     .eq('servicio_id', id)
+
+  if (errConteo) {
+    logger.error('Error al verificar citas asociadas antes de eliminar:', errConteo.message)
+  }
 
   if ((count ?? 0) > 0) {
     return {

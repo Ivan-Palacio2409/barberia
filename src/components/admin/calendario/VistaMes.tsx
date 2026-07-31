@@ -1,6 +1,7 @@
 'use client'
 
 import type { CitaCalendario } from '@/types'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // VistaMes.tsx — Fase 18
@@ -30,7 +31,7 @@ function diasDelMes(fechaRef: string): (string | null)[] {
   const celdas: (string | null)[] = Array(offset).fill(null)
 
   for (let i = 1; i <= totalDias; i++) {
-    celdas.push(new Date(año, mes, i).toISOString().slice(0, 10))
+    celdas.push(`${año}-${String(mes + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`)
   }
 
   // Completar semana final
@@ -46,7 +47,7 @@ interface Props {
 
 export function VistaMes({ fechaRef, citas, onDiaClick }: Props) {
   const celdas = diasDelMes(fechaRef)
-  const hoy = new Date().toISOString().slice(0, 10)
+  const hoy = hoyISO()
 
   return (
     <div>

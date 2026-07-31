@@ -7,6 +7,7 @@
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react'
+import { hoyISO } from '@/lib/date-utils'
 import type { DiaBloqueado, HorarioEspecial, HorarioTrabajo } from '@/types'
 import {
   getHorariosTrabajo,
@@ -46,8 +47,8 @@ export default function AdminHorariosPage() {
 
   const pestanas: { id: Pestana; label: string; conteo?: number }[] = [
     { id: 'semanal',    label: 'Horario semanal' },
-    { id: 'bloqueados', label: 'Días bloqueados',      conteo: diasBloqueados.filter((d) => d.fecha >= new Date().toISOString().split('T')[0]).length },
-    { id: 'especiales', label: 'Horarios especiales',  conteo: horariosEspeciales.filter((h) => h.fecha >= new Date().toISOString().split('T')[0]).length },
+    { id: 'bloqueados', label: 'Días bloqueados',      conteo: diasBloqueados.filter((d) => d.fecha >= hoyISO()).length },
+    { id: 'especiales', label: 'Horarios especiales',  conteo: horariosEspeciales.filter((h) => h.fecha >= hoyISO()).length },
   ]
 
   return (

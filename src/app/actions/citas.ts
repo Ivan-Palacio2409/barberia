@@ -7,6 +7,7 @@ import { getSlotsDisponibles } from '@/services/disponibilidad'
 import { BUCKETS, ALLOWED_TYPES, MAX_FILE_SIZE } from '@/lib/supabase/storage'
 import { logger } from '@/lib/logger'
 import { checkRateLimitDistributed } from '@/lib/rate-limit'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // Server Action — crearCitaCompleta
@@ -89,8 +90,7 @@ export async function crearCitaCompleta(
   // mismo mensaje genérico de "horario ocupado" (porque
   // getSlotsDisponibles ahora las excluye), lo cual confunde al
   // usuario. Este chequeo explícito da el mensaje correcto.
-  const hoyISO = new Date().toISOString().split('T')[0]
-  if (input.fecha < hoyISO) {
+  if (input.fecha < hoyISO()) {
     return {
       ok: false,
       code: 'ERROR_GENERICO',

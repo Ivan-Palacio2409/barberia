@@ -8,6 +8,7 @@ import {
 import type { ReporteResumen, ReporteFiltrado, ServicioRendimiento } from '@/services/reportes'
 import { fetchReporteConFiltros, fetchReportePorServicio } from '@/app/actions/reportes'
 import { objectsToCSV, descargarCSV } from '@/lib/export/csv'
+import { hoyISO } from '@/lib/date-utils'
 
 // ============================================================
 // ReportesShell.tsx — Rehecho (estilo panel de analiticas
@@ -35,12 +36,11 @@ function formatCOP(n: number) {
 }
 
 function hoy() {
-  return new Date().toISOString().slice(0, 10)
+  return hoyISO()
 }
 
 function inicioMes() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+  return `${hoyISO().slice(0, 7)}-01`
 }
 
 function IconDownload() {

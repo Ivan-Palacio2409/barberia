@@ -177,10 +177,14 @@ export async function convertirListaEsperaEnCita(
   }
 
   // Servicios activos del negocio (hoy solo existe "Corte")
-  const { data: servicios } = await supabase
+  const { data: servicios, error: errServicios } = await supabase
     .from('servicios')
     .select('id, duracion_minutos, precio')
     .eq('activo', true)
+
+  if (errServicios) {
+    logger.error('Error al obtener servicios al convertir lista de espera en cita:', errServicios.message)
+  }
 
   const listaServicios = servicios ?? []
   const duracionTotal = listaServicios.reduce((acc, s) => acc + (s.duracion_minutos ?? 0), 0) || 30
@@ -194,12 +198,16 @@ export async function convertirListaEsperaEnCita(
   const horaFin = `${String(Math.floor(finMin / 60)).padStart(2, '0')}:${String(finMin % 60).padStart(2, '0')}:00`
 
   // Verificar solapamiento (el trigger de BD tambien lo rechaza)
-  const { data: solapadas } = await supabase
+  const { data: solapadas, error: errSolapadas } = await supabase
     .from('citas')
     .select('id')
     .eq('fecha', solicitud.fecha_solicitada)
     .neq('estado', 'cancelada')
     .or(`hora_inicio.lt.${horaFin},hora_fin.gt.${horaInicioFmt}`)
+
+  if (errSolapadas) {
+    logger.error('Error al verificar solapamiento al convertir lista de espera en cita:', errSolapadas.message)
+  }
 
   if (solapadas && solapadas.length > 0) {
     return {

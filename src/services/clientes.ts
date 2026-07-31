@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Cita, Cliente } from '@/types'
 import { logger } from '@/lib/logger'
+import { BUCKETS } from '@/lib/supabase/storage'
 
 // ============================================================
 // SERVICIO: clientes
@@ -179,7 +180,7 @@ export async function eliminarFotografiasCliente(clienteId: string): Promise<{ o
 
   if (paths.length > 0) {
     const { error: storageError } = await supabase.storage
-      .from('estilos-referencia')
+      .from(BUCKETS.ESTILOS_REFERENCIA)
       .remove(paths)
 
     if (storageError) {

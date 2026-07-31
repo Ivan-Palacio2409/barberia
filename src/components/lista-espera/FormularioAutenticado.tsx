@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { Cliente } from '@/types'
 import { inscribirseListaEspera } from '@/services/lista-espera'
+import { hoyISO, sumarDias, sumarMeses } from '@/lib/date-utils'
 
 interface FormularioAutenticadoProps {
   cliente: Cliente
@@ -11,15 +12,11 @@ interface FormularioAutenticadoProps {
 }
 
 function fechaMinima(): string {
-  const d = new Date()
-  d.setDate(d.getDate() + 1)
-  return d.toISOString().split('T')[0]
+  return sumarDias(hoyISO(), 1)
 }
 
 function fechaMaxima(): string {
-  const d = new Date()
-  d.setMonth(d.getMonth() + 3)
-  return d.toISOString().split('T')[0]
+  return sumarMeses(hoyISO(), 3)
 }
 
 export function FormularioAutenticado({ cliente, serviciosOpciones, onExito }: FormularioAutenticadoProps) {
